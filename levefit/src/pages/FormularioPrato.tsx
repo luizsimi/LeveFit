@@ -4,7 +4,22 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
 import axios, { AxiosError } from "axios";
-import { FaArrowLeft, FaImage, FaUpload } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaImage,
+  FaUpload,
+  FaUtensils,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaInfoCircle,
+  FaCloudUploadAlt,
+  FaTags,
+  FaMoneyBillWave,
+  FaAlignLeft,
+  FaTimes,
+} from "react-icons/fa";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 // Definir interface com tipagem correta para imagem opcional
 interface PratoFormData {
@@ -60,6 +75,7 @@ const FormularioPrato = () => {
   const [success, setSuccess] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [dragActive, setDragActive] = useState(false);
   const editando = !!id;
 
   const {
@@ -67,7 +83,8 @@ const FormularioPrato = () => {
     handleSubmit,
     watch,
     reset,
-    formState: { errors },
+    setValue,
+    formState: { errors, isValid, isDirty },
   } = useForm<PratoFormData>({
     resolver: yupResolver(pratoSchema),
     defaultValues: {
@@ -78,9 +95,12 @@ const FormularioPrato = () => {
       imagem: null,
       disponivel: true,
     },
+    mode: "onChange",
   });
 
   const imagemValue = watch("imagem");
+  const categoriaValue = watch("categoria");
+  const disponivelValue = watch("disponivel");
 
   useEffect(() => {
     const buscarPrato = async () => {
@@ -105,6 +125,11 @@ const FormularioPrato = () => {
           disponivel: response.data.disponivel,
         });
 
+        // Se houver imagem, definir o preview
+        if (response.data.imagem) {
+          setImagePreview(response.data.imagem);
+        }
+
         setBuscandoPrato(false);
       } catch (error) {
         console.error("Erro ao buscar prato:", error);
@@ -127,11 +152,36 @@ const FormularioPrato = () => {
     buscarPrato();
   }, [id, reset]);
 
+  // Lidar com drag and drop de imagem
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFiles(e.dataTransfer.files[0]);
+    }
+  };
+
   // Lidar com upload de imagem
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    handleFiles(file);
+  };
+
+  const handleFiles = (file: File) => {
     // Verificar tipo de arquivo
     if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/i)) {
       setError("O arquivo deve ser uma imagem (JPEG, PNG, GIF, WEBP)");
@@ -147,6 +197,14 @@ const FormularioPrato = () => {
     setImageFile(file);
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
+    setValue("imagem", previewUrl, { shouldValidate: true, shouldDirty: true });
+  };
+
+  // Remover imagem
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setImageFile(null);
+    setValue("imagem", null, { shouldValidate: true, shouldDirty: true });
   };
 
   // Função para fazer upload da imagem para o servidor
@@ -240,220 +298,308 @@ const FormularioPrato = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-green-600 text-white shadow-md">
-        <div className="max-w-4xl mx-auto p-4">
-          <div className="flex items-center">
-            <button
-              onClick={() => navigate("/dashboard/fornecedor")}
-              className="mr-4 p-2 rounded-full hover:bg-green-500 flex items-center justify-center"
-              aria-label="Voltar"
-            >
-              <FaArrowLeft />
-            </button>
-            <h1 className="text-2xl font-bold">
-              {editando ? "Editar Prato" : "Novo Prato"}
-            </h1>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <Navbar />
 
-      <main className="max-w-4xl mx-auto p-4">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="flex items-center mb-6">
+          <button
+            onClick={() => navigate("/dashboard/fornecedor")}
+            className="mr-4 p-2 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center shadow-sm transition-all duration-200"
+            aria-label="Voltar"
+          >
+            <FaArrowLeft />
+          </button>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+            {editando ? "Editar Prato" : "Novo Prato"}
+          </h1>
+        </div>
+
+        {error && (
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-6 flex items-center">
+            <FaExclamationCircle className="mr-2 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg mb-6 flex items-center">
+            <FaCheckCircle className="mr-2 flex-shrink-0" />
+            <span>{success}</span>
+          </div>
+        )}
+
         {buscandoPrato ? (
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
             <div className="animate-pulse space-y-4">
-              <div className="h-10 bg-gray-200 rounded"></div>
-              <div className="h-32 bg-gray-200 rounded"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                {error}
-              </div>
-            )}
-
-            {success && (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-                {success}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Nome do Prato*
-                </label>
-                <input
-                  type="text"
-                  {...register("nome")}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Ex: Salada Caesar"
-                />
-                {errors.nome && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {errors.nome.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Descrição*
-                </label>
-                <textarea
-                  {...register("descricao")}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Descreva os ingredientes e como o prato é preparado"
-                ></textarea>
-                {errors.descricao && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {errors.descricao.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Preço (R$)*
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...register("preco")}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="0,00"
-                  />
-                  {errors.preco && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.preco.message}
-                    </p>
-                  )}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800 p-6 text-white">
+              <div className="flex items-center">
+                <div className="bg-white/20 p-3 rounded-full mr-4">
+                  <FaUtensils className="text-xl" />
                 </div>
-
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Categoria*
-                  </label>
-                  <select
-                    {...register("categoria")}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  >
-                    <option value="">Selecione uma categoria</option>
-                    {categoriasDisponiveis.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.categoria && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.categoria.message}
-                    </p>
-                  )}
+                  <h2 className="text-xl font-semibold">
+                    {editando
+                      ? "Editar prato existente"
+                      : "Cadastrar novo prato"}
+                  </h2>
+                  <p className="text-green-100 text-sm">
+                    Preencha todos os campos obrigatórios marcados com *
+                  </p>
                 </div>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Imagem do Prato (opcional)
-                </label>
-
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  {/* Preview da imagem */}
-                  {(imagePreview || imagemValue) && (
-                    <div className="mb-4">
-                      <img
-                        src={imagePreview || imagemValue}
-                        alt="Preview"
-                        className="w-full max-h-48 object-contain rounded-md"
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
-                    {/* Upload de arquivo */}
-                    <div className="flex-1">
-                      <label
-                        htmlFor="file-upload"
-                        className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
-                      >
-                        <FaUpload className="mr-2" />
-                        Selecionar arquivo
-                      </label>
-                      <input
-                        id="file-upload"
-                        name="file-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="sr-only"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">
-                        PNG, JPG, GIF ou WEBP (máx. 5MB)
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Coluna da esquerda - Informações básicas */}
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 flex items-center">
+                      <FaUtensils className="mr-2 text-green-600 dark:text-green-400" />
+                      Nome do Prato*
+                    </label>
+                    <input
+                      type="text"
+                      {...register("nome")}
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors"
+                      placeholder="Ex: Salada Caesar com Frango Grelhado"
+                    />
+                    {errors.nome && (
+                      <p className="text-red-600 dark:text-red-400 text-sm mt-1 flex items-center">
+                        <FaExclamationCircle className="mr-1" />
+                        {errors.nome.message}
                       </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 flex items-center">
+                      <FaAlignLeft className="mr-2 text-green-600 dark:text-green-400" />
+                      Descrição*
+                    </label>
+                    <textarea
+                      {...register("descricao")}
+                      rows={5}
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors resize-none"
+                      placeholder="Descreva os ingredientes, modo de preparo e características especiais do prato..."
+                    ></textarea>
+                    {errors.descricao && (
+                      <p className="text-red-600 dark:text-red-400 text-sm mt-1 flex items-center">
+                        <FaExclamationCircle className="mr-1" />
+                        {errors.descricao.message}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+                      Seja detalhado e mencione informações relevantes como
+                      ingredientes principais e benefícios nutricionais.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 flex items-center">
+                        <FaMoneyBillWave className="mr-2 text-green-600 dark:text-green-400" />
+                        Preço (R$)*
+                      </label>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 dark:text-gray-400">
+                          R$
+                        </span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          {...register("preco")}
+                          className="w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors"
+                          placeholder="0,00"
+                        />
+                      </div>
+                      {errors.preco && (
+                        <p className="text-red-600 dark:text-red-400 text-sm mt-1 flex items-center">
+                          <FaExclamationCircle className="mr-1" />
+                          {errors.preco.message}
+                        </p>
+                      )}
                     </div>
 
-                    {/* OU */}
-                    <div className="text-center md:text-left text-gray-500">
-                      OU
+                    <div>
+                      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 flex items-center">
+                        <FaTags className="mr-2 text-green-600 dark:text-green-400" />
+                        Categoria*
+                      </label>
+                      <select
+                        {...register("categoria")}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-colors"
+                      >
+                        <option value="">Selecione uma categoria</option>
+                        {categoriasDisponiveis.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.categoria && (
+                        <p className="text-red-600 dark:text-red-400 text-sm mt-1 flex items-center">
+                          <FaExclamationCircle className="mr-1" />
+                          {errors.categoria.message}
+                        </p>
+                      )}
                     </div>
+                  </div>
 
-                    {/* URL da imagem */}
-                    <div className="flex-1">
+                  <div className="mt-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="disponivel"
+                        {...register("disponivel")}
+                        className="h-5 w-5 text-green-600 dark:text-green-400 rounded focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 border-gray-300 dark:border-gray-600"
+                      />
+                      <span className="ml-2 block text-gray-700 dark:text-gray-300">
+                        Disponível para pedidos
+                      </span>
+                    </label>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-7 italic">
+                      Marque esta opção para que o prato fique visível para os
+                      clientes realizarem pedidos
+                    </p>
+                  </div>
+                </div>
+
+                {/* Coluna da direita - Imagem */}
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2 flex items-center">
+                    <FaImage className="mr-2 text-green-600 dark:text-green-400" />
+                    Imagem do Prato (recomendado)
+                  </label>
+
+                  <div
+                    className={`border-2 ${
+                      dragActive
+                        ? "border-green-500 bg-green-50 dark:bg-green-900/10"
+                        : "border-dashed border-gray-300 dark:border-gray-600"
+                    } rounded-lg p-6 mb-4 transition-all duration-200`}
+                    onDragEnter={handleDrag}
+                    onDragOver={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDrop={handleDrop}
+                  >
+                    {/* Preview da imagem */}
+                    {imagePreview || imagemValue ? (
+                      <div className="mb-4 relative">
+                        <img
+                          src={imagePreview || imagemValue || ""}
+                          alt="Preview"
+                          className="w-full h-48 object-contain rounded-md border border-gray-200 dark:border-gray-700"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                          title="Remover imagem"
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-6 text-center">
+                        <FaCloudUploadAlt className="text-5xl text-gray-400 dark:text-gray-500 mb-3" />
+                        <p className="text-gray-600 dark:text-gray-400 mb-2">
+                          Arraste e solte uma imagem aqui ou
+                        </p>
+                        <label
+                          htmlFor="file-upload"
+                          className="cursor-pointer bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center transition-colors"
+                        >
+                          <FaUpload className="mr-2" />
+                          Selecionar arquivo
+                          <input
+                            id="file-upload"
+                            name="file-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                          />
+                        </label>
+                        <div className="mt-4">
+                          <div className="flex items-center justify-center text-sm text-gray-500 dark:text-gray-400">
+                            <FaInfoCircle className="mr-1 text-blue-500" />
+                            <span>
+                              Formatos aceitos: JPG, PNG, GIF ou WEBP (máx. 5MB)
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* URL da imagem alternativa */}
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-medium">
+                        Ou insira a URL de uma imagem
+                      </p>
                       <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
+                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                           <FaImage />
                         </span>
                         <input
                           type="text"
                           {...register("imagem")}
-                          className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-green-500 focus:border-green-500"
-                          placeholder="https://sua-imagem.com/foto.jpg"
+                          className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-green-500 focus:border-green-500 dark:focus:ring-green-400 dark:focus:border-green-400"
+                          placeholder="https://exemplo.com/imagem.jpg"
                         />
                       </div>
-                      <p className="mt-1 text-xs text-gray-500">
-                        Ou insira a URL de uma imagem já hospedada
-                      </p>
                     </div>
+                  </div>
+
+                  {/* Dicas e benefícios */}
+                  <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-lg p-4">
+                    <h4 className="font-medium text-blue-800 dark:text-blue-400 mb-2 flex items-center">
+                      <FaInfoCircle className="mr-2" />
+                      Dicas para fotos atrativas
+                    </h4>
+                    <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+                      <li>
+                        • Use iluminação natural para destacar as cores dos
+                        alimentos
+                      </li>
+                      <li>
+                        • Fotografe de ângulos que mostrem bem os ingredientes
+                      </li>
+                      <li>
+                        • Prefira fundos simples e neutros para destacar o prato
+                      </li>
+                      <li>
+                        • Imagens de qualidade aumentam em até 30% a chance de
+                        venda
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="disponivel"
-                  {...register("disponivel")}
-                  className="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="disponivel"
-                  className="ml-2 block text-gray-700"
-                >
-                  Disponível para pedidos
-                </label>
-              </div>
-
-              <div className="flex justify-end space-x-4">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={() => navigate("/dashboard/fornecedor")}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                  className={`px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white rounded-lg hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
                     loading ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                 >
@@ -469,7 +615,9 @@ const FormularioPrato = () => {
             </form>
           </div>
         )}
-      </main>
+      </div>
+
+      <Footer />
     </div>
   );
 };

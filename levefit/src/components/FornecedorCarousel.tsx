@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import FornecedorModal from "./FornecedorModal";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
+// Usando a mesma interface de Fornecedor que está no FornecedorModal
 interface Fornecedor {
   id: number;
   nome: string;
@@ -9,6 +11,10 @@ interface Fornecedor {
   logo?: string;
   whatsapp?: string;
   telefone?: string;
+  contato?: string;
+  celular?: string;
+  tel?: string;
+  [key: string]: unknown; // Permite propriedades adicionais
 }
 
 const FornecedorCarousel = () => {
@@ -111,15 +117,21 @@ const FornecedorCarousel = () => {
   if (loading) {
     return (
       <div className="my-8">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
           Fornecedores Parceiros
         </h2>
-        <div className="flex space-x-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(3)].map((_, index) => (
             <div
               key={index}
-              className="bg-gray-200 rounded-lg p-6 w-full h-48 animate-pulse"
-            ></div>
+              className="bg-gray-200 dark:bg-gray-700 rounded-xl p-6 h-48 animate-pulse"
+            >
+              <div className="flex flex-col items-center">
+                <div className="w-20 h-20 rounded-full bg-gray-300 dark:bg-gray-600 mb-4"></div>
+                <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -130,10 +142,10 @@ const FornecedorCarousel = () => {
   if (error) {
     return (
       <div className="my-8">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
           Fornecedores Parceiros
         </h2>
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg shadow-sm">
           {error}
         </div>
       </div>
@@ -146,8 +158,8 @@ const FornecedorCarousel = () => {
   }
 
   return (
-    <div className="my-8">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">
+    <div className="my-12">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
         Fornecedores Parceiros
       </h2>
 
@@ -155,44 +167,30 @@ const FornecedorCarousel = () => {
         {/* Botão Anterior */}
         <button
           onClick={prevSlide}
-          className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white dark:bg-gray-700 p-3 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 dark:text-white"
           aria-label="Anterior"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-gray-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <FaChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
         </button>
 
         {/* Carrossel */}
-        <div className="overflow-hidden">
+        <div className="overflow-hidden mx-12">
           <div
-            className="flex transition-transform duration-300 ease-in-out"
+            className="flex transition-transform duration-500 ease-in-out"
             style={{
               transform: `translateX(-${
-                (currentIndex / fornecedores.length) * 100
+                (currentIndex * 100) / itemsPerSlide
               }%)`,
-              width: `${(fornecedores.length / itemsPerSlide) * 100}%`,
             }}
           >
             {fornecedores.map((fornecedor) => (
               <div
                 key={fornecedor.id}
-                className="px-2"
-                style={{ width: `${100 / fornecedores.length}%` }}
+                className="px-3 flex-shrink-0"
+                style={{ width: `${100 / itemsPerSlide}%` }}
               >
                 <div
-                  className="block bg-white rounded-lg shadow-md p-6 h-full hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 h-full hover:shadow-lg dark:shadow-gray-900/30 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group"
                   onClick={() => handleOpenModal(fornecedor)}
                 >
                   <div className="flex flex-col items-center text-center h-full">
@@ -200,26 +198,31 @@ const FornecedorCarousel = () => {
                       <img
                         src={fornecedor.logo}
                         alt={fornecedor.nome}
-                        className="w-20 h-20 rounded-full mb-4 object-cover"
+                        className="w-20 h-20 rounded-full mb-4 object-cover border-2 border-white dark:border-gray-700 shadow-sm transition-transform duration-300 group-hover:scale-105"
                         onError={handleImageError}
                       />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                        <span className="text-2xl font-bold text-green-600">
+                      <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mb-4 border-2 border-white dark:border-gray-700 shadow-sm transition-transform duration-300 group-hover:scale-105">
+                        <span className="text-2xl font-bold text-green-600 dark:text-green-400">
                           {fornecedor.nome.charAt(0)}
                         </span>
                       </div>
                     )}
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2 tracking-tight">
                       {fornecedor.nome}
                     </h3>
                     {fornecedor.descricao && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
                         {fornecedor.descricao.length > 100
                           ? `${fornecedor.descricao.substring(0, 100)}...`
                           : fornecedor.descricao}
                       </p>
                     )}
+                    <div className="mt-3 w-full pt-3 border-t border-gray-100 dark:border-gray-700">
+                      <span className="text-green-600 dark:text-green-400 font-medium text-sm inline-flex items-center group-hover:underline">
+                        Ver detalhes
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -230,37 +233,24 @@ const FornecedorCarousel = () => {
         {/* Botão Próximo */}
         <button
           onClick={nextSlide}
-          className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white dark:bg-gray-700 p-3 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 dark:text-white"
           aria-label="Próximo"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-gray-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+          <FaChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-300" />
         </button>
       </div>
 
       {/* Indicadores de slide */}
-      <div className="flex justify-center mt-4">
+      <div className="flex justify-center mt-6">
         {Array.from({
           length: Math.ceil(fornecedores.length / itemsPerSlide),
         }).map((_, index) => (
           <button
             key={index}
-            className={`h-2 w-2 rounded-full mx-1 ${
+            className={`h-2.5 w-2.5 rounded-full mx-1.5 transition-all duration-300 ${
               index === Math.floor(currentIndex / itemsPerSlide)
-                ? "bg-green-600"
-                : "bg-gray-300"
+                ? "bg-green-600 dark:bg-green-500 w-6"
+                : "bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
             }`}
             onClick={() => setCurrentIndex(index * itemsPerSlide)}
             aria-label={`Ir para slide ${index + 1}`}

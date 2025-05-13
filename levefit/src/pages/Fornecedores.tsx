@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { FaStar, FaSearch, FaFilter, FaArrowLeft } from "react-icons/fa";
+import {
+  FaStar,
+  FaSearch,
+  FaFilter,
+  FaArrowLeft,
+  FaMapMarkerAlt,
+  FaWhatsapp,
+} from "react-icons/fa";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 interface Fornecedor {
   id: number;
@@ -11,6 +20,8 @@ interface Fornecedor {
   pratos?: Array<Prato>;
   avaliacaoMedia?: number;
   totalAvaliacoes?: number;
+  endereco?: string;
+  whatsapp?: string;
 }
 
 interface Prato {
@@ -120,7 +131,9 @@ const Fornecedores = () => {
         <FaStar
           key={i}
           className={`inline ${
-            i <= avaliacao ? "text-yellow-400" : "text-gray-300"
+            i <= avaliacao
+              ? "text-yellow-400"
+              : "text-gray-300 dark:text-gray-600"
           }`}
         />
       );
@@ -158,19 +171,20 @@ const Fornecedores = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
             Carregando fornecedores...
           </h1>
           <div className="animate-pulse">
             <div className="mb-8">
-              <div className="h-10 bg-gray-200 rounded-md w-full md:w-1/2 mb-4"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-full md:w-1/2 mb-4"></div>
               <div className="flex flex-wrap gap-2">
                 {[...Array(5)].map((_, index) => (
                   <div
                     key={index}
-                    className="h-10 bg-gray-200 rounded-md w-24"
+                    className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-24"
                   ></div>
                 ))}
               </div>
@@ -178,77 +192,94 @@ const Fornecedores = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, index) => (
-                <div key={index} className="bg-gray-200 rounded-lg h-64"></div>
+                <div
+                  key={index}
+                  className="bg-gray-200 dark:bg-gray-700 rounded-xl h-64"
+                ></div>
               ))}
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl mb-4">
             {error}
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-sm hover:shadow-md"
           >
             Tentar novamente
           </button>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Fornecedores</h1>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white">
+              Nossos Fornecedores
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2 max-w-2xl">
+              Conheça os melhores fornecedores de comida saudável parceiros do
+              LeveFit, todos comprometidos com qualidade e sabor em cada
+              refeição.
+            </p>
+          </div>
+
           <Link
             to="/"
-            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+            className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white rounded-lg hover:shadow-lg transition duration-300 transform hover:-translate-y-0.5 self-start md:self-auto"
           >
-            <FaArrowLeft className="mr-2" /> Voltar para página principal
+            <FaArrowLeft className="mr-2" /> Voltar para início
           </Link>
         </div>
 
-        <div className="mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8">
           <div className="mb-4 relative">
             <input
               type="text"
-              placeholder="Buscar fornecedores..."
+              placeholder="Busque por nome do fornecedor, prato ou descrição..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full md:w-1/2 px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
             />
-            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mt-4">
             <button
-              className={`px-4 py-2 rounded-md flex items-center ${
+              className={`px-4 py-2 rounded-lg flex items-center transition-colors duration-300 ${
                 !categoriaAtiva
-                  ? "bg-green-600 text-white"
-                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                  ? "bg-green-600 text-white shadow-md"
+                  : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"
               }`}
               onClick={() => setCategoriaAtiva(null)}
             >
-              <FaFilter className="mr-2" /> Todos
+              <FaFilter className="mr-2" /> Todos os fornecedores
             </button>
 
             {categoriasFiltro.map((categoria, index) => (
               <button
                 key={index}
-                className={`px-4 py-2 rounded-md ${
+                className={`px-4 py-2 rounded-lg transition-colors duration-300 ${
                   categoriaAtiva === categoria
-                    ? "bg-green-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                    ? "bg-green-600 text-white shadow-md"
+                    : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"
                 }`}
                 onClick={() => setCategoriaAtiva(categoria)}
               >
@@ -258,109 +289,163 @@ const Fornecedores = () => {
           </div>
         </div>
 
+        <div className="mb-4 flex justify-between items-center">
+          <p className="text-gray-600 dark:text-gray-400">
+            {fornecedoresFiltrados.length === 0
+              ? "Nenhum fornecedor encontrado"
+              : `Mostrando ${fornecedoresFiltrados.length} ${
+                  fornecedoresFiltrados.length === 1
+                    ? "fornecedor"
+                    : "fornecedores"
+                }`}
+          </p>
+        </div>
+
         {fornecedoresFiltrados.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-600 mb-4">
-              Nenhum fornecedor encontrado para os filtros selecionados.
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-10 shadow-md text-center">
+            <div className="text-gray-400 dark:text-gray-500 mb-4">
+              <FaSearch className="mx-auto text-5xl" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+              Nenhum fornecedor encontrado
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {categoriaAtiva
+                ? `Não encontramos fornecedores com pratos na categoria "${categoriaAtiva}".`
+                : "Não encontramos fornecedores que correspondam à sua busca."}
             </p>
             <button
               onClick={() => {
-                setCategoriaAtiva(null);
                 setBusca("");
+                setCategoriaAtiva(null);
               }}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               Limpar filtros
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {fornecedoresFiltrados.map((fornecedor) => {
-              // Encontrar principais categorias do fornecedor
-              const categoriasPratos: { [key: string]: number } = {};
-              fornecedor.pratos?.forEach((prato) => {
-                if (categoriasPratos[prato.categoria]) {
-                  categoriasPratos[prato.categoria]++;
-                } else {
-                  categoriasPratos[prato.categoria] = 1;
-                }
-              });
-
-              // Ordenar por quantidade de pratos e pegar o primeiro
-              const categoriaPrincipal =
-                Object.keys(categoriasPratos).sort(
-                  (a, b) => categoriasPratos[b] - categoriasPratos[a]
-                )[0] || "";
-
-              return (
-                <div
-                  key={fornecedor.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                >
-                  <div className="relative h-48">
-                    {fornecedor.logo ? (
-                      <img
-                        src={fornecedor.logo}
-                        alt={fornecedor.nome}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-green-100">
-                        <span className="text-4xl font-bold text-green-600">
-                          {fornecedor.nome.charAt(0)}
+            {fornecedoresFiltrados.map((fornecedor, index) => (
+              <div
+                key={fornecedor.id}
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg dark:shadow-gray-900/30 overflow-hidden transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="relative h-40 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 flex justify-center items-center text-white">
+                  {fornecedor.logo ? (
+                    <img
+                      src={fornecedor.logo}
+                      alt={fornecedor.nome}
+                      className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-md"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 flex items-center justify-center text-3xl font-bold border-4 border-white dark:border-gray-800">
+                      {fornecedor.nome.charAt(0)}
+                    </div>
+                  )}
+                  {fornecedor.avaliacaoMedia !== undefined &&
+                    fornecedor.avaliacaoMedia > 0 && (
+                      <div className="absolute top-3 right-3 bg-white dark:bg-gray-800 px-2 py-1 rounded-lg shadow-md flex items-center">
+                        <div className="flex mr-1">
+                          {renderEstrelas(fornecedor.avaliacaoMedia)}
+                        </div>
+                        <span className="text-gray-800 dark:text-gray-300 text-sm font-medium">
+                          {fornecedor.avaliacaoMedia.toFixed(1)}
                         </span>
                       </div>
                     )}
-                    {categoriaPrincipal && (
-                      <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                        {categoriaPrincipal}
-                      </div>
+                </div>
+
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                    {fornecedor.nome}
+                  </h3>
+
+                  <div className="flex items-start space-x-1 text-gray-600 dark:text-gray-400 text-sm mb-3">
+                    <FaMapMarkerAlt className="mt-1 flex-shrink-0" />
+                    <span>{fornecedor.endereco || "Várias localidades"}</span>
+                  </div>
+
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                    {fornecedor.descricao ||
+                      "Este fornecedor oferece diversos pratos saudáveis para seu dia a dia."}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {fornecedor.pratos
+                      ?.map((prato) => prato.categoria)
+                      .filter(
+                        (categoria, index, self) =>
+                          self.indexOf(categoria) === index
+                      )
+                      .slice(0, 3)
+                      .map((categoria, index) => (
+                        <span
+                          key={index}
+                          className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs px-2 py-1 rounded-full"
+                        >
+                          {categoria}
+                        </span>
+                      ))}
+                    {(fornecedor.pratos
+                      ?.map((prato) => prato.categoria)
+                      .filter(
+                        (categoria, index, self) =>
+                          self.indexOf(categoria) === index
+                      ).length || 0) > 3 && (
+                      <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs px-2 py-1 rounded-full">
+                        +
+                        {(fornecedor.pratos
+                          ?.map((prato) => prato.categoria)
+                          .filter(
+                            (categoria, index, self) =>
+                              self.indexOf(categoria) === index
+                          ).length || 0) - 3}{" "}
+                        mais
+                      </span>
                     )}
                   </div>
 
-                  <div className="p-4">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">
-                      {fornecedor.nome}
-                    </h3>
-
-                    {fornecedor.avaliacaoMedia !== undefined && (
-                      <div className="flex items-center mb-2">
-                        <div className="flex mr-2">
-                          {renderEstrelas(
-                            Math.round(fornecedor.avaliacaoMedia)
-                          )}
-                        </div>
-                        <span className="text-sm text-gray-600">
-                          {fornecedor.avaliacaoMedia.toFixed(1)} (
-                          {fornecedor.totalAvaliacoes})
-                        </span>
-                      </div>
-                    )}
-
-                    <p className="text-gray-600 mb-4 line-clamp-2">
-                      {fornecedor.descricao ||
-                        "Fornecedor de alimentos saudáveis."}
-                    </p>
-
-                    <div className="text-sm text-gray-500 mb-4">
-                      <div>
-                        {fornecedor.pratos?.length || 0} pratos disponíveis
-                      </div>
+                  <div className="flex flex-wrap justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="font-medium">
+                        {fornecedor.pratos?.length || 0}
+                      </span>{" "}
+                      {fornecedor.pratos?.length === 1 ? "prato" : "pratos"}
                     </div>
 
-                    <Link
-                      to={`/fornecedor/${fornecedor.id}`}
-                      className="block w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-center"
-                    >
-                      Ver Pratos
-                    </Link>
+                    <div className="flex space-x-2">
+                      {fornecedor.whatsapp && (
+                        <a
+                          href={`https://wa.me/${fornecedor.whatsapp.replace(
+                            /\D/g,
+                            ""
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center p-2 bg-green-500 hover:bg-green-600 rounded-lg text-white transition-colors"
+                          title="Contato WhatsApp"
+                        >
+                          <FaWhatsapp />
+                        </a>
+                      )}
+
+                      <Link
+                        to={`/fornecedores/${fornecedor.id}`}
+                        className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white rounded-lg hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
+                      >
+                        Ver Cardápio
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 };

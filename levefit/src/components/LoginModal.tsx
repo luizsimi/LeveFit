@@ -4,6 +4,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios, { AxiosError } from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import {
+  FaTimes,
+  FaEnvelope,
+  FaLock,
+  FaUserAlt,
+  FaStore,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 
 interface LoginModalProps {
   onClose: () => void;
@@ -160,119 +168,140 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 max-w-md w-full animate-scaleIn">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Login</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+            Login
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded-full transition-colors"
+            aria-label="Fechar"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <FaTimes size={16} />
           </button>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-6 flex items-center">
+            <FaExclamationTriangle className="mr-2 flex-shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
         {assinaturaWarning && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {assinaturaWarning}
+          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-6 flex items-center">
+            <FaExclamationTriangle className="mr-2 flex-shrink-0" />
+            <span>{assinaturaWarning}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Tipo de Usuário</label>
+        <form onSubmit={handleSubmit(onSubmit)} className="animate-slideUp">
+          <div className="mb-5">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+              Tipo de Usuário
+            </label>
             <div className="flex space-x-4">
-              <label className="inline-flex items-center">
+              <label className="flex-1 flex items-center justify-center p-3 border rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer group [&:has(input:checked)]:bg-green-50 [&:has(input:checked)]:dark:bg-green-900/20 [&:has(input:checked)]:border-green-500">
                 <input
                   type="radio"
                   value="cliente"
                   {...register("tipoUsuario")}
-                  className="form-radio h-5 w-5 text-green-600"
+                  className="sr-only"
                 />
-                <span className="ml-2 text-gray-700">Cliente</span>
+                <FaUserAlt className="mr-2 text-gray-500 dark:text-gray-400 group-[:has(input:checked)]:text-green-600 dark:group-[:has(input:checked)]:text-green-400" />
+                <span className="text-gray-700 dark:text-gray-300 group-[:has(input:checked)]:text-green-700 dark:group-[:has(input:checked)]:text-green-400 font-medium">
+                  Cliente
+                </span>
               </label>
-              <label className="inline-flex items-center">
+              <label className="flex-1 flex items-center justify-center p-3 border rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer group [&:has(input:checked)]:bg-green-50 [&:has(input:checked)]:dark:bg-green-900/20 [&:has(input:checked)]:border-green-500">
                 <input
                   type="radio"
                   value="fornecedor"
                   {...register("tipoUsuario")}
-                  className="form-radio h-5 w-5 text-green-600"
+                  className="sr-only"
                 />
-                <span className="ml-2 text-gray-700">Fornecedor</span>
+                <FaStore className="mr-2 text-gray-500 dark:text-gray-400 group-[:has(input:checked)]:text-green-600 dark:group-[:has(input:checked)]:text-green-400" />
+                <span className="text-gray-700 dark:text-gray-300 group-[:has(input:checked)]:text-green-700 dark:group-[:has(input:checked)]:text-green-400 font-medium">
+                  Fornecedor
+                </span>
               </label>
             </div>
             {errors.tipoUsuario && (
-              <p className="text-red-600 text-sm mt-1">
+              <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                 {errors.tipoUsuario.message}
               </p>
             )}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Email</label>
-            <input
-              type="email"
-              {...register("email")}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="seu@email.com"
-            />
+          <div className="mb-5">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+              Email
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaEnvelope className="text-gray-500 dark:text-gray-400" />
+              </div>
+              <input
+                type="email"
+                {...register("email")}
+                className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="seu@email.com"
+              />
+            </div>
             {errors.email && (
-              <p className="text-red-600 text-sm mt-1">
+              <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                 {errors.email.message}
               </p>
             )}
           </div>
 
           <div className="mb-6">
-            <label className="block text-gray-700 mb-2">Senha</label>
-            <input
-              type="password"
-              {...register("senha")}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Sua senha"
-            />
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+              Senha
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaLock className="text-gray-500 dark:text-gray-400" />
+              </div>
+              <input
+                type="password"
+                {...register("senha")}
+                className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="Sua senha"
+              />
+            </div>
             {errors.senha && (
-              <p className="text-red-600 text-sm mt-1">
+              <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                 {errors.senha.message}
               </p>
             )}
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center space-x-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              className="px-5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 font-medium"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className={`px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              className={`px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-300 font-medium shadow-sm ${
                 loading ? "opacity-70 cursor-not-allowed" : ""
               }`}
             >
-              {loading ? "Entrando..." : "Entrar"}
+              {loading ? (
+                <span className="flex items-center">
+                  <span className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                  Entrando...
+                </span>
+              ) : (
+                "Entrar"
+              )}
             </button>
           </div>
         </form>

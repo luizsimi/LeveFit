@@ -17,6 +17,8 @@ interface AuthContextType {
   userData: UserData | null;
   login: (token: string, type: UserType, data: UserData) => void;
   logout: () => void;
+  updateUserData: (data: Partial<UserData>) => void;
+  refreshUserData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -114,9 +116,62 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log("DEBUG - AuthContext - Logout concluído");
   };
 
+  // Atualizar parcialmente os dados do usuário
+  const updateUserData = (data: Partial<UserData>) => {
+    if (!userData) return;
+
+    console.log("DEBUG - AuthContext - Atualizando dados do usuário:", data);
+
+    const updatedUserData = { ...userData, ...data };
+    localStorage.setItem("userData", JSON.stringify(updatedUserData));
+    setUserData(updatedUserData);
+
+    console.log("DEBUG - AuthContext - Dados atualizados com sucesso");
+  };
+
+  // Buscar dados atualizados do perfil a partir da API
+  const refreshUserData = async () => {
+    if (!isAuthenticated || !userType) return;
+
+    console.log("DEBUG - AuthContext - Atualizando dados do usuário da API");
+    const token = localStorage.getItem("token");
+
+    try {
+      const endpoint =
+        userType === "fornecedor"
+          ? "http://localhost:3333/fornecedores/perfil"
+          : "http://localhost:3333/clientes/perfil";
+
+      const response = await axios.get(endpoint, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const updatedUserData = response.data;
+      console.log(
+        "DEBUG - AuthContext - Dados atualizados recebidos:",
+        updatedUserData
+      );
+
+      localStorage.setItem("userData", JSON.stringify(updatedUserData));
+      setUserData(updatedUserData);
+
+      return updatedUserData;
+    } catch (error) {
+      console.error("DEBUG - AuthContext - Erro ao atualizar dados:", error);
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, userType, userData, login, logout }}
+      value={{
+        isAuthenticated,
+        userType,
+        userData,
+        login,
+        logout,
+        updateUserData,
+        refreshUserData,
+      }}
     >
       {children}
     </AuthContext.Provider>

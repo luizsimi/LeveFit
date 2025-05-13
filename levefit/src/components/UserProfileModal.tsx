@@ -3,7 +3,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios, { AxiosError } from "axios";
-import { FaTimes } from "react-icons/fa";
+import {
+  FaTimes,
+  FaUser,
+  FaKey,
+  FaCheck,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 
 interface UserProfileModalProps {
@@ -217,34 +223,46 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
   const renderClienteForm = () => (
     <>
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Nome*</label>
+        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+          Nome*
+        </label>
         <input
           type="text"
           {...register("nome")}
           className={`w-full px-3 py-2 border ${
-            errors.nome ? "border-red-500" : "border-gray-300"
-          } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
+            errors.nome
+              ? "border-red-500 dark:border-red-400"
+              : "border-gray-300 dark:border-gray-600"
+          } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
         />
         {errors.nome && (
-          <p className="text-red-500 text-sm mt-1">{errors.nome.message}</p>
+          <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+            {errors.nome.message}
+          </p>
         )}
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Endereço</label>
+        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+          Endereço
+        </label>
         <input
           type="text"
           {...register("endereco")}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          placeholder="Informe seu endereço completo"
         />
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Telefone</label>
+        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+          Telefone
+        </label>
         <input
           type="text"
           {...register("telefone")}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          placeholder="Ex: (11) 99999-9999"
         />
       </div>
     </>
@@ -253,52 +271,60 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
   const renderFornecedorForm = () => (
     <>
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Nome*</label>
+        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+          Nome*
+        </label>
         <input
           type="text"
           {...register("nome")}
           className={`w-full px-3 py-2 border ${
-            errors.nome ? "border-red-500" : "border-gray-300"
-          } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
+            errors.nome
+              ? "border-red-500 dark:border-red-400"
+              : "border-gray-300 dark:border-gray-600"
+          } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
         />
         {errors.nome && (
-          <p className="text-red-500 text-sm mt-1">{errors.nome.message}</p>
+          <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+            {errors.nome.message}
+          </p>
         )}
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">WhatsApp</label>
+        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+          WhatsApp
+        </label>
         <input
           type="text"
           {...register("whatsapp")}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-          placeholder="ex: (11) 99999-9999"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          placeholder="Ex: (11) 99999-9999"
         />
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">
+        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
           URL da Logo (imagem)
         </label>
         <input
           type="text"
           {...register("logo")}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           placeholder="URL da imagem da sua logo"
         />
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">
+        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
           Descrição do seu negócio
         </label>
         <textarea
           {...register("descricao")}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           placeholder="Descreva seu negócio, especialidades, horários de atendimento, etc."
         ></textarea>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Esta descrição será exibida nos cards e no perfil do seu
           estabelecimento.
         </p>
@@ -308,120 +334,145 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
 
   const renderPasswordFields = () => (
     <>
-      <div className="mb-4">
+      <div className="mt-6 mb-4 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center">
           <input
             type="checkbox"
             id="alterarSenha"
             checked={mostrarSenha}
             onChange={() => setMostrarSenha(!mostrarSenha)}
-            className="mr-2 h-4 w-4 text-green-600 focus:ring-green-500"
+            className="mr-2 h-4 w-4 text-green-600 focus:ring-green-500 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
           />
           <label
             htmlFor="alterarSenha"
-            className="text-gray-700 font-medium cursor-pointer"
+            className="text-gray-700 dark:text-gray-300 font-medium cursor-pointer flex items-center"
           >
+            <FaKey className="mr-2 text-green-600 dark:text-green-400" />{" "}
             Alterar senha
           </label>
         </div>
       </div>
 
       {mostrarSenha && (
-        <>
+        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg animate-fadeIn">
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
               Nova Senha
             </label>
             <input
               type="password"
               {...register("senha")}
               className={`w-full px-3 py-2 border ${
-                errors.senha ? "border-red-500" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
+                errors.senha
+                  ? "border-red-500 dark:border-red-400"
+                  : "border-gray-300 dark:border-gray-600"
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
             />
             {errors.senha && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                 {errors.senha.message}
               </p>
             )}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
+          <div className="mb-2">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
               Confirmar Nova Senha
             </label>
             <input
               type="password"
               {...register("confirmarSenha")}
               className={`w-full px-3 py-2 border ${
-                errors.confirmarSenha ? "border-red-500" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
+                errors.confirmarSenha
+                  ? "border-red-500 dark:border-red-400"
+                  : "border-gray-300 dark:border-gray-600"
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
             />
             {errors.confirmarSenha && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                 {errors.confirmarSenha.message}
               </p>
             )}
           </div>
-        </>
+        </div>
       )}
     </>
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-gray-800">Editar Perfil</h2>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scaleIn">
+        <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex items-center">
+            <FaUser className="text-green-600 dark:text-green-400 mr-2" />
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+              Editar Perfil
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded-full transition-colors"
+            aria-label="Fechar"
           >
-            <FaTimes size={20} />
+            <FaTimes size={16} />
           </button>
         </div>
 
         <div className="p-6">
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
+            <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-4 flex items-start">
+              <FaExclamationTriangle className="mr-2 mt-0.5 flex-shrink-0" />
+              <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-              {success}
+            <div className="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg mb-4 flex items-center">
+              <FaCheck className="mr-2 flex-shrink-0" />
+              <span>{success}</span>
             </div>
           )}
 
           {carregandoPerfil ? (
-            <div className="text-center py-8">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-green-500 border-t-transparent"></div>
-              <p className="mt-2 text-gray-600">Carregando perfil...</p>
+            <div className="text-center py-8 animate-pulse">
+              <div className="inline-block rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent animate-spin"></div>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">
+                Carregando perfil...
+              </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit(onSubmit as any)}>
+            <form
+              onSubmit={handleSubmit(onSubmit as any)}
+              className="animate-slideUp"
+            >
               {userType === "cliente"
                 ? renderClienteForm()
                 : renderFornecedorForm()}
               {renderPasswordFields()}
 
-              <div className="flex justify-end mt-6">
+              <div className="flex justify-end mt-6 space-x-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md mr-2 hover:bg-gray-300"
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 ${
+                  className={`px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm ${
                     loading ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                 >
-                  {loading ? "Salvando..." : "Salvar Alterações"}
+                  {loading ? (
+                    <span className="flex items-center">
+                      <span className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                      Salvando...
+                    </span>
+                  ) : (
+                    "Salvar Alterações"
+                  )}
                 </button>
               </div>
             </form>

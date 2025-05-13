@@ -1,157 +1,344 @@
-# LeveFit - Guia de Execução
+# 📚 Guia Detalhado de Instalação e Execução - LeveFit
 
-Este documento fornece instruções detalhadas para configurar e executar o projeto LeveFit, uma plataforma de delivery de comida saudável similar ao iFood.
+Este documento fornece um guia completo e detalhado para configurar, instalar e executar o projeto LeveFit em seu ambiente local, seja para fins de desenvolvimento ou teste.
 
-## Estrutura do Projeto
+![LeveFit Logo](../levefit/public/favicon.svg)
 
-O projeto é dividido em duas partes principais:
+## 📋 Índice
 
-1. **Backend**: API RESTful em Node.js + Express + Prisma ORM
-2. **Frontend**: Aplicação web em React + Tailwind CSS
+- [Pré-requisitos](#pré-requisitos)
+- [Configuração do Ambiente](#configuração-do-ambiente)
+- [Instalação](#instalação)
+  - [Clonando o Repositório](#1-clonando-o-repositório)
+  - [Configurando o Backend](#2-configurando-o-backend)
+  - [Configurando o Frontend](#3-configurando-o-frontend)
+- [Execução do Projeto](#execução-do-projeto)
+- [Acessando a Aplicação](#acessando-a-aplicação)
+- [Funcionalidades Principais](#funcionalidades-principais)
+- [Solução de Problemas Comuns](#solução-de-problemas-comuns)
+- [Configurações Avançadas](#configurações-avançadas)
 
-## Requisitos
+## 🛠️ Pré-requisitos
 
-- Node.js 16+ (recomendado: Node.js 18 LTS)
-- NPM 8+
-- Git
+Certifique-se de ter instalado em seu computador:
 
-## Instalação
+- **Node.js** (versão 16+) - [Download Node.js](https://nodejs.org/)
+  - Verifique sua versão: `node -v`
+- **npm** (normalmente instalado com o Node.js)
+  - Verifique sua versão: `npm -v`
+- **Git** - [Download Git](https://git-scm.com/downloads)
+  - Verifique sua versão: `git --version`
+- Editor de código de sua preferência (recomendamos [Visual Studio Code](https://code.visualstudio.com/))
 
-### 1. Clone o repositório
+## 🌐 Configuração do Ambiente
+
+### Windows
+
+1. **Instalação do Node.js**:
+
+   - Baixe o instalador do [site oficial](https://nodejs.org/)
+   - Execute o instalador e siga as instruções
+   - Reinicie seu computador após a instalação
+
+2. **Configuração do PowerShell para execução de scripts**:
+   - Abra o PowerShell como administrador
+   - Execute: `Set-ExecutionPolicy RemoteSigned`
+   - Confirme com "S" quando solicitado
+
+### macOS
+
+1. **Usando Homebrew**:
+
+   ```bash
+   # Instalar Homebrew (se ainda não tiver)
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+   # Instalar Node.js
+   brew install node
+   ```
+
+### Linux (Ubuntu/Debian)
+
+1. **Usando apt**:
+
+   ```bash
+   # Atualizar os repositórios
+   sudo apt update
+
+   # Instalar Node.js e npm
+   sudo apt install nodejs npm
+   ```
+
+## 📥 Instalação
+
+### 1. Clonando o Repositório
+
+Abra seu terminal (PowerShell no Windows, Terminal no macOS/Linux) e execute:
 
 ```bash
+# Clone o repositório
 git clone https://github.com/seu-usuario/LeveFit.git
+
+# Entre na pasta do projeto
 cd LeveFit
 ```
 
-### 2. Configure o Backend
+### 2. Configurando o Backend
 
 ```bash
-# Entre na pasta do backend
+# Navigate to the backend directory
 cd backend
 
-# Instale as dependências
+# Install dependencies
 npm install
 
-# Prepare o banco de dados (SQLite)
-npx prisma migrate dev
+# Create a .env file (copy from template)
+copy .env.example .env   # Windows
+cp .env.example .env     # macOS/Linux
 
-# Popule o banco de dados com dados iniciais (opcional)
+# Run database migrations to set up the database
+npx prisma migrate dev --name init
+
+# Generate Prisma client
+npx prisma generate
+
+# Seed the database with initial data (optional but recommended for testing)
 npx prisma db seed
 ```
 
-### 3. Configure o Frontend
+#### Detalhes da Configuração do Backend
+
+1. O arquivo `.env` contém variáveis de ambiente essenciais:
+
+   ```
+   DATABASE_URL="file:./dev.db"  # Caminho para o banco SQLite
+   JWT_SECRET="seu-segredo-aqui"  # Chave para assinatura de tokens JWT
+   PORT=3333                      # Porta onde a API irá rodar
+   ```
+
+2. Verifique se o banco de dados foi criado corretamente:
+   ```bash
+   npx prisma studio
+   ```
+   Isso abrirá uma interface web para visualizar os dados no seu banco.
+
+### 3. Configurando o Frontend
+
+Abra uma nova janela de terminal e execute:
 
 ```bash
+# Volte à pasta raiz do projeto (se necessário)
+cd ..
+
 # Entre na pasta do frontend
-cd ../levefit
+cd levefit
 
 # Instale as dependências
 npm install
+
+# Crie um arquivo .env local (opcional)
+copy .env.example .env   # Windows
+cp .env.example .env     # macOS/Linux
 ```
 
-## Execução
+#### Detalhes da Configuração do Frontend
 
-Para executar o projeto, você precisará iniciar tanto o backend quanto o frontend.
+O arquivo `.env` do frontend deve conter:
 
-### Iniciando o Backend
+```
+VITE_API_URL=http://localhost:3333
+```
 
-No PowerShell do Windows:
+## ▶️ Execução do Projeto
 
-```powershell
-cd backend
+É necessário executar tanto o backend quanto o frontend em terminais separados.
+
+### Terminal 1: Backend
+
+```bash
+# Na pasta backend
+cd backend  # Se você não estiver já na pasta
+
+# Iniciar o servidor de desenvolvimento
 npm run dev
 ```
 
-No terminal Linux/macOS:
+Você deverá ver uma mensagem semelhante a:
 
-```bash
-cd backend && npm run dev
+```
+Server running on http://localhost:3333
 ```
 
-O servidor backend estará disponível em http://localhost:3333
+### Terminal 2: Frontend
 
-### Iniciando o Frontend
+```bash
+# Na pasta frontend
+cd levefit  # Se você não estiver já na pasta
 
-Em outra janela do terminal:
-
-No PowerShell do Windows:
-
-```powershell
-cd levefit
+# Iniciar o servidor de desenvolvimento
 npm run dev
 ```
 
-No terminal Linux/macOS:
+Você deverá ver uma mensagem semelhante a:
 
-```bash
-cd levefit && npm run dev
+```
+  VITE v4.4.5  ready in 1234 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://192.168.x.x:5173/
 ```
 
-O frontend estará disponível em http://localhost:5173
+## 🌐 Acessando a Aplicação
 
-## Solução de Problemas
+Abra seu navegador e acesse:
 
-### Erro ao conectar-se ao servidor
+- **Frontend**: [http://localhost:5173](http://localhost:5173)
+- **API Backend**: [http://localhost:3333](http://localhost:3333)
+- **Interface do Prisma Studio**: [http://localhost:5555](http://localhost:5555) (após executar `npx prisma studio`)
 
-Se você receber o erro "Servidor não está respondendo", verifique se:
+## 👤 Contas para Teste
 
-1. O backend está em execução na porta 3333
-2. Não existem firewalls ou aplicações bloqueando a comunicação entre frontend e backend
-3. O terminal que está executando o backend não foi fechado
+Se você executou o comando de seed, as seguintes contas de teste estarão disponíveis:
 
-### No PowerShell do Windows
+### Cliente
 
-O PowerShell não aceita o operador `&&` para executar comandos em sequência. Use o ponto e vírgula (`;`) para separar comandos:
+- **Email**: cliente@teste.com
+- **Senha**: 123456
 
-```powershell
-cd backend ; npm run dev
-```
+### Fornecedor
 
-### Usuários para Teste
+- **Email**: fornecedor@teste.com
+- **Senha**: 123456
 
-Se você executou o seed, os seguintes usuários já estão disponíveis para teste:
+## 🧩 Funcionalidades Principais
 
-#### Cliente
+Depois de configurar e executar o projeto, você poderá testar as seguintes funcionalidades:
 
-- Email: cliente@teste.com
-- Senha: 123456
+1. **Como Cliente**:
 
-#### Fornecedor
+   - Registrar-se como novo cliente
+   - Fazer login com suas credenciais
+   - Navegar pelo catálogo de pratos
+   - Filtrar pratos por categoria
+   - Ver detalhes dos pratos
+   - Ver perfis de fornecedores
+   - Fazer pedidos via WhatsApp
+   - Avaliar pratos experimentados
 
-- Email: fornecedor@teste.com
-- Senha: 123456
+2. **Como Fornecedor**:
+   - Registrar-se como novo fornecedor
+   - Fazer login com suas credenciais
+   - Criar e gerenciar seu catálogo de pratos
+   - Adicionar, editar e remover pratos
+   - Ver avaliações recebidas
+   - Gerenciar assinatura na plataforma
+   - Atualizar informações de perfil
+   - Receber pedidos via WhatsApp
 
-## Funcionalidades Principais
+## ❓ Solução de Problemas Comuns
 
-1. **Cadastro e Login**: Clientes e fornecedores podem se cadastrar e fazer login
-2. **Navegação de Pratos**: Visualização de pratos por categoria e fornecedor
-3. **Dashboard de Fornecedor**: Gerenciamento de pratos e perfil
-4. **Assinatura**: Sistema de assinatura mensal (R$40) para fornecedores
-5. **Pedidos**: Realização e acompanhamento de pedidos (via WhatsApp)
+### Backend não inicia
 
-## Arquitetura
+1. **Problema com o banco de dados**:
 
-### Backend
+   ```bash
+   # Reinicie o banco de dados
+   cd backend
+   rm -rf prisma/dev.db
+   npx prisma migrate reset --force
+   npx prisma generate
+   ```
 
-- **Express**: Framework web
-- **Prisma ORM**: ORM para gerenciamento do banco de dados
-- **JWT**: Autenticação baseada em tokens
-- **Bcrypt**: Criptografia de senhas
+2. **Porta 3333 já em uso**:
+   - Verifique se você não tem outra instância do servidor rodando
+   - Altere a porta no arquivo `.env` do backend
 
-### Frontend
+### Frontend não inicia
 
-- **React**: Biblioteca UI
-- **React Router**: Roteamento
-- **Tailwind CSS**: Framework CSS
-- **Axios**: Cliente HTTP
+1. **Problemas com dependências**:
 
-## Considerações para Produção
+   ```bash
+   # Limpe o cache e reinstale as dependências
+   cd levefit
+   rm -rf node_modules
+   npm cache clean --force
+   npm install
+   ```
 
-Para um ambiente de produção, considere:
+2. **Porta 5173 já em uso**:
+   - Pare outros serviços que possam estar usando esta porta
+   - Ou aceite a sugestão de porta alternativa que o Vite oferece
 
-1. Migrar para um banco de dados robusto como PostgreSQL ou MySQL
-2. Implementar um sistema de pagamento real como Stripe ou MercadoPago
-3. Configurar HTTPS para segurança
-4. Adicionar variáveis de ambiente para configurações sensíveis
-5. Implementar testes automatizados
+### Erro de CORS
+
+Se o frontend não conseguir se comunicar com o backend, verifique:
+
+1. Se o backend está rodando corretamente
+2. Se as URLs no arquivo `.env` estão corretas
+3. Se não há problemas de rede ou firewall bloqueando a comunicação
+
+## ⚙️ Configurações Avançadas
+
+### Conexão com Banco de Dados Externo
+
+Para usar um banco de dados PostgreSQL ou MySQL em vez do SQLite padrão:
+
+1. Instale as dependências necessárias:
+
+   ```bash
+   cd backend
+   npm install @prisma/client
+   ```
+
+2. Atualize o arquivo `.env` do backend:
+
+   ```
+   # Para PostgreSQL
+   DATABASE_URL="postgresql://usuario:senha@localhost:5432/levefit"
+
+   # Para MySQL
+   DATABASE_URL="mysql://usuario:senha@localhost:3306/levefit"
+   ```
+
+3. Execute a migração para o novo banco:
+   ```bash
+   npx prisma migrate dev
+   ```
+
+### Configuração para Produção
+
+Para preparar o projeto para produção:
+
+1. **Backend**:
+
+   ```bash
+   cd backend
+   npm run build
+   ```
+
+2. **Frontend**:
+
+   ```bash
+   cd levefit
+   npm run build
+   ```
+
+   Os arquivos de produção estarão na pasta `dist`.
+
+---
+
+## 🌟 Contribuindo para o Projeto
+
+Se você deseja contribuir, siga estes passos:
+
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature: `git checkout -b minha-feature`
+3. Faça suas alterações e commit: `git commit -m 'Adiciona nova feature'`
+4. Envie para seu fork: `git push origin minha-feature`
+5. Crie um Pull Request
+
+---
+
+<div align="center">
+  <p>🌱 <b>LeveFit</b> - Comida saudável, vida leve 🌱</p>
+</div>

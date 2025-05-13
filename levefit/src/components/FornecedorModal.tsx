@@ -1,4 +1,4 @@
-import { FaTimes, FaWhatsapp } from "react-icons/fa";
+import { FaTimes, FaWhatsapp, FaInfoCircle } from "react-icons/fa";
 
 interface Fornecedor {
   id: number;
@@ -27,7 +27,9 @@ const FornecedorModal = ({ fornecedor, onClose }: FornecedorModalProps) => {
   ) => {
     console.log("Erro ao carregar imagem, usando fallback");
     e.currentTarget.onerror = null; // Evita loop infinito
-    e.currentTarget.src = "/default-avatar.png"; // Usa uma imagem local de fallback
+    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      fornecedor.nome
+    )}&background=2F855A&color=fff&size=200`;
   };
 
   // Criar link do WhatsApp com número fixo
@@ -56,22 +58,23 @@ const FornecedorModal = ({ fornecedor, onClose }: FornecedorModalProps) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-all animate-scaleIn"
         onClick={(e) => e.stopPropagation()} // Impede que o clique seja propagado para o fundo
       >
-        <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-gray-800">
+        <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">
             Detalhes do Fornecedor
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded-full transition-colors"
+            aria-label="Fechar"
           >
-            <FaTimes size={20} />
+            <FaTimes size={16} />
           </button>
         </div>
 
@@ -81,44 +84,47 @@ const FornecedorModal = ({ fornecedor, onClose }: FornecedorModalProps) => {
               <img
                 src={fornecedor.logo}
                 alt={fornecedor.nome}
-                className="w-24 h-24 rounded-full object-cover mb-4"
+                className="w-28 h-28 rounded-full object-cover mb-4 border-4 border-white dark:border-gray-700 shadow-md transition-transform hover:scale-105 duration-300"
                 onError={handleImageError}
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <span className="text-3xl font-bold text-green-600">
+              <div className="w-28 h-28 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center mb-4 border-4 border-white dark:border-gray-700 shadow-md">
+                <span className="text-4xl font-bold text-green-600 dark:text-green-400">
                   {fornecedor.nome.charAt(0)}
                 </span>
               </div>
             )}
-            <h3 className="text-2xl font-bold text-center text-gray-800 mb-2">
+            <h3 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">
               {fornecedor.nome}
             </h3>
           </div>
 
           {fornecedor.descricao ? (
-            <div className="mb-6">
-              <h4 className="text-lg font-semibold text-gray-700 mb-2">
+            <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 shadow-inner">
+              <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center">
+                <FaInfoCircle className="mr-2 text-green-600 dark:text-green-400" />{" "}
                 Sobre nós
               </h4>
-              <p className="text-gray-600">{fornecedor.descricao}</p>
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                {fornecedor.descricao}
+              </p>
             </div>
           ) : (
-            <div className="mb-6">
-              <p className="text-gray-500 italic text-center">
+            <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 shadow-inner">
+              <p className="text-gray-500 dark:text-gray-400 italic text-center">
                 Este fornecedor ainda não adicionou uma descrição.
               </p>
             </div>
           )}
 
-          <div className="flex justify-between mt-6">
+          <div className="mt-6">
             <a
               href={criarLinkWhatsApp()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-full justify-center"
+              className="flex items-center px-4 py-3 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg w-full justify-center transition-colors duration-300 shadow-sm font-medium"
             >
-              <FaWhatsapp className="mr-2" /> Contatar via WhatsApp
+              <FaWhatsapp className="mr-2 text-lg" /> Contatar via WhatsApp
             </a>
           </div>
         </div>
