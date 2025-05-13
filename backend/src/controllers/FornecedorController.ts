@@ -205,6 +205,7 @@ export class FornecedorController {
           nome: true,
           descricao: true,
           logo: true,
+          whatsapp: true,
         },
       });
 

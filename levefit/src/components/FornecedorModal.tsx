@@ -7,6 +7,10 @@ interface Fornecedor {
   logo?: string;
   whatsapp?: string;
   telefone?: string;
+  contato?: string;
+  celular?: string;
+  tel?: string;
+  [key: string]: unknown; // Melhor usar unknown do que any
 }
 
 interface FornecedorModalProps {
@@ -26,28 +30,29 @@ const FornecedorModal = ({ fornecedor, onClose }: FornecedorModalProps) => {
     e.currentTarget.src = "/default-avatar.png"; // Usa uma imagem local de fallback
   };
 
-  // Verificar se o fornecedor tem algum contato (whatsapp ou telefone)
-  const temContato = () => {
-    return !!(fornecedor.whatsapp || fornecedor.telefone);
-  };
-
-  // Pegar o número de contato (whatsapp ou telefone)
-  const getNumeroContato = () => {
-    return fornecedor.whatsapp || fornecedor.telefone || "";
-  };
-
-  // Criar link do WhatsApp
+  // Criar link do WhatsApp com número fixo
   const criarLinkWhatsApp = () => {
-    if (!temContato()) return "#";
-    const numero = getNumeroContato().replace(/\D/g, "");
+    let numero = "";
+
+    // Se o fornecedor tem WhatsApp, use-o
+    if (
+      fornecedor.whatsapp &&
+      typeof fornecedor.whatsapp === "string" &&
+      fornecedor.whatsapp.trim() !== ""
+    ) {
+      numero = fornecedor.whatsapp.replace(/\D/g, "");
+      console.log("Usando WhatsApp do fornecedor:", numero);
+    } else {
+      // Fallback para um número central (substitua por um número real)
+      numero = "5511999999999";
+      console.log("Usando número de fallback");
+    }
+
     const mensagem = encodeURIComponent(
-      `Olá, gostaria de conhecer mais sobre seus produtos`
+      `Olá! Estou interessado nos produtos de ${fornecedor.nome}. Gostaria de mais informações.`
     );
     return `https://wa.me/${numero}?text=${mensagem}`;
   };
-
-  // Renderizar console log para debug
-  console.log("Dados do fornecedor:", fornecedor);
 
   return (
     <div
@@ -107,20 +112,14 @@ const FornecedorModal = ({ fornecedor, onClose }: FornecedorModalProps) => {
           )}
 
           <div className="flex justify-between mt-6">
-            {temContato() ? (
-              <a
-                href={criarLinkWhatsApp()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-full justify-center"
-              >
-                <FaWhatsapp className="mr-2" /> Contatar via WhatsApp
-              </a>
-            ) : (
-              <p className="text-gray-500 italic text-center w-full">
-                Este fornecedor não disponibilizou contato.
-              </p>
-            )}
+            <a
+              href={criarLinkWhatsApp()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-full justify-center"
+            >
+              <FaWhatsapp className="mr-2" /> Contatar via WhatsApp
+            </a>
           </div>
         </div>
       </div>

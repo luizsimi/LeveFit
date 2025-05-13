@@ -18,6 +18,37 @@ interface PratoProps {
   };
 }
 
+// Array de URLs de imagens padrão para diferentes categorias de pratos
+const defaultImages = {
+  Saladas:
+    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=500&auto=format",
+  Vegano:
+    "https://images.unsplash.com/photo-1543362906-acfc16c67564?q=80&w=500&auto=format",
+  Vegetariano:
+    "https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?q=80&w=500&auto=format",
+  Proteico:
+    "https://images.unsplash.com/photo-1607532941433-304659e8198a?q=80&w=500&auto=format",
+  "Low Carb":
+    "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=500&auto=format",
+  Fit: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?q=80&w=500&auto=format",
+  Bowls:
+    "https://images.unsplash.com/photo-1604152135912-04a022e23696?q=80&w=500&auto=format",
+  Sopas:
+    "https://images.unsplash.com/photo-1605891094836-99210404c080?q=80&w=500&auto=format",
+  "Café da Manhã":
+    "https://images.unsplash.com/photo-1533089860892-a7c6f10a081a?q=80&w=500&auto=format",
+  default:
+    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=500&auto=format",
+};
+
+// Função para obter uma imagem padrão com base na categoria
+const getDefaultImage = (categoria: string) => {
+  return (
+    defaultImages[categoria as keyof typeof defaultImages] ||
+    defaultImages.default
+  );
+};
+
 const PratoCard = ({
   id,
   nome,
@@ -48,7 +79,7 @@ const PratoCard = ({
   ) => {
     console.log("Erro ao carregar imagem do prato, usando fallback");
     e.currentTarget.onerror = null; // Evita loop infinito
-    e.currentTarget.src = "/default-dish.png"; // Usa uma imagem local de fallback
+    e.currentTarget.src = getDefaultImage(categoria); // Usa uma imagem padrão da categoria
   };
 
   // Função para lidar com erro ao carregar imagem do fornecedor
@@ -57,7 +88,10 @@ const PratoCard = ({
   ) => {
     console.log("Erro ao carregar imagem do fornecedor, usando fallback");
     e.currentTarget.onerror = null; // Evita loop infinito
-    e.currentTarget.src = "/default-avatar.png"; // Usa uma imagem local de fallback
+    e.currentTarget.src =
+      "https://ui-avatars.com/api/?name=" +
+      encodeURIComponent(fornecedor.nome) +
+      "&background=2F855A&color=fff"; // Avatar gerado
   };
 
   // Renderizar as estrelas de avaliação
@@ -95,9 +129,14 @@ const PratoCard = ({
             onError={handleImageError}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-green-100">
-            <span className="text-4xl">🍲</span>
-          </div>
+          <img
+            src={getDefaultImage(categoria)}
+            alt={nome}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = defaultImages.default;
+            }}
+          />
         )}
         <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
           {categoria}
@@ -126,11 +165,15 @@ const PratoCard = ({
                 onError={handleFornecedorImageError}
               />
             ) : (
-              <div className="w-6 h-6 rounded-full bg-green-200 flex items-center justify-center mr-2">
-                <span className="text-xs font-bold text-green-800">
-                  {fornecedor.nome.charAt(0)}
-                </span>
-              </div>
+              <img
+                src={
+                  "https://ui-avatars.com/api/?name=" +
+                  encodeURIComponent(fornecedor.nome.charAt(0)) +
+                  "&background=2F855A&color=fff"
+                }
+                alt={fornecedor.nome}
+                className="w-6 h-6 rounded-full mr-2"
+              />
             )}
             <span>{fornecedor.nome}</span>
           </div>

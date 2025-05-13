@@ -45,7 +45,16 @@ const FornecedorCarousel = () => {
   ) => {
     console.log("Erro ao carregar imagem, usando fallback");
     e.currentTarget.onerror = null; // Evita loop infinito
-    e.currentTarget.src = "/default-avatar.png"; // Usa uma imagem local de fallback
+    // Gerar avatar usando API ui-avatars com as iniciais do fornecedor
+    if (e.currentTarget.alt) {
+      const nome = e.currentTarget.alt;
+      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        nome
+      )}&background=2F855A&color=fff&size=200`;
+    } else {
+      e.currentTarget.src =
+        "https://ui-avatars.com/api/?name=F&background=2F855A&color=fff&size=200";
+    }
   };
 
   // Buscar fornecedores da API
