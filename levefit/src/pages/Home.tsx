@@ -110,7 +110,7 @@ const Home = () => {
 
                 <a
                   href="#como-funciona"
-                  className="bg-blue-600/80 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-all duration-300 shadow-md flex items-center justify-center"
+                  className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-all duration-300 shadow-md flex items-center justify-center"
                 >
                   Como Funciona
                 </a>
