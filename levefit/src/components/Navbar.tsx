@@ -16,6 +16,7 @@ import {
   FaStore,
   FaListAlt,
   FaPhoneAlt,
+  FaBookMedical,
 } from "react-icons/fa";
 import { HiChevronDown } from "react-icons/hi";
 import UserProfileModal from "./UserProfileModal";
@@ -166,6 +167,9 @@ const Navbar = () => {
             </NavLink>
             <NavLink to="/fornecedores" isActive={isActive("/fornecedores")}>
               <FaStore className="mr-1.5" /> Fornecedores
+            </NavLink>
+            <NavLink to="/blog" isActive={isActive("/blog")}>
+              <FaBookMedical className="mr-1.5" /> Blog
             </NavLink>
             <NavLink to="/contato" isActive={isActive("/contato")}>
               <FaPhoneAlt className="mr-1.5" /> Contato
@@ -348,39 +352,49 @@ const Navbar = () => {
         {isMobileMenuOpen && (
           <div
             ref={mobileMenuRef}
-            className="md:hidden bg-white dark:bg-gray-800 rounded-b-lg shadow-lg mt-2 py-2 animate-slideUp z-20"
+            className={`fixed inset-y-0 right-0 z-30 w-64 sm:w-80 bg-white dark:bg-gray-800 shadow-xl transform ${
+              isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+            } transition-transform duration-300 ease-in-out`}
           >
-            <div className="space-y-1 px-4">
+            <div className="px-4 pb-6 pt-2 space-y-1">
               <MobileNavLink
                 to="/"
-                onClick={() => setIsMobileMenuOpen(false)}
                 isActive={isActive("/")}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                <FaHome className="mr-2" />
+                <FaHome className="mr-3" />
                 Home
               </MobileNavLink>
               <MobileNavLink
                 to="/categorias"
-                onClick={() => setIsMobileMenuOpen(false)}
                 isActive={isActive("/categorias")}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                <FaListAlt className="mr-2" />
+                <FaListAlt className="mr-3" />
                 Categorias
               </MobileNavLink>
               <MobileNavLink
                 to="/fornecedores"
-                onClick={() => setIsMobileMenuOpen(false)}
                 isActive={isActive("/fornecedores")}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                <FaStore className="mr-2" />
+                <FaStore className="mr-3" />
                 Fornecedores
               </MobileNavLink>
               <MobileNavLink
-                to="/contato"
+                to="/blog"
+                isActive={isActive("/blog")}
                 onClick={() => setIsMobileMenuOpen(false)}
-                isActive={isActive("/contato")}
               >
-                <FaPhoneAlt className="mr-2" />
+                <FaBookMedical className="mr-3" />
+                Blog
+              </MobileNavLink>
+              <MobileNavLink
+                to="/contato"
+                isActive={isActive("/contato")}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <FaPhoneAlt className="mr-3" />
                 Contato
               </MobileNavLink>
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -17,7 +17,12 @@ import {
   FaLeaf,
   FaHeartbeat,
   FaSmile,
+  FaBookMedical,
+  FaClock,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
+import { HiArrowRight } from "react-icons/hi";
 
 interface Prato {
   id: number;
@@ -50,6 +55,9 @@ const Home = () => {
   const [error, setError] = useState("");
   const [errorPromocoes, setErrorPromocoes] = useState("");
   const [isPromocoesModalOpen, setIsPromocoesModalOpen] = useState(false);
+  const [currentPromoPage, setCurrentPromoPage] = useState(0);
+  const promocoesPerPage = 3; // Número de promoções visíveis por página
+  const promocoesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchPratos = async () => {
@@ -96,6 +104,27 @@ const Home = () => {
 
   const handleCategoriaChange = (categoria: string | null) => {
     setCategoriaFiltrada(categoria);
+  };
+
+  // Funções para o carrossel de promoções
+  const nextPromoPage = () => {
+    if (pratosPromocao.length <= promocoesPerPage) return;
+    setCurrentPromoPage(
+      (prev) => (prev + 1) % Math.ceil(pratosPromocao.length / promocoesPerPage)
+    );
+  };
+
+  const prevPromoPage = () => {
+    if (pratosPromocao.length <= promocoesPerPage) return;
+    setCurrentPromoPage((prev) =>
+      prev === 0
+        ? Math.ceil(pratosPromocao.length / promocoesPerPage) - 1
+        : prev - 1
+    );
+  };
+
+  const goToPromoPage = (pageIndex: number) => {
+    setCurrentPromoPage(pageIndex);
   };
 
   return (
@@ -224,130 +253,253 @@ const Home = () => {
 
         {/* Banner de Promoções */}
         {pratosPromocao.length > 0 && (
-          <section className="mt-12 mb-10">
-            {/* Header do banner em estilo promocional */}
-            <div className="bg-gradient-to-r from-red-500 to-orange-500 dark:from-red-600 dark:to-orange-600 rounded-t-xl overflow-hidden shadow-lg relative">
-              <div className="relative flex items-center justify-between p-6">
-                <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center">
-                    <div className="bg-white p-2 rounded-full mr-3 shadow-md">
-                      <FaUtensils className="text-red-500" />
-                    </div>
-                    Ofertas Especiais
-                  </h2>
-                  <p className="text-white/90 mt-1 ml-12">
-                    Economize até 50% em pratos selecionados!
-                  </p>
-                </div>
+          <section className="my-10 relative">
+            {/* Decorações de fundo (reduzidas) */}
+            <div className="absolute -top-4 -left-4 w-20 h-20 bg-red-500/20 dark:bg-red-500/10 rounded-full animate-pulse"></div>
+            <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-orange-500/20 dark:bg-orange-500/10 rounded-full animate-pulse"></div>
 
-                <button
-                  onClick={() => setIsPromocoesModalOpen(true)}
-                  className="bg-white text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg font-medium transition-all shadow-md hidden sm:flex items-center"
-                >
-                  Ver todas <FaArrowRight className="ml-2" />
-                </button>
+            {/* Banner principal */}
+            <div className="relative bg-gradient-to-br from-red-600 via-red-500 to-orange-500 dark:from-red-700 dark:via-red-600 dark:to-orange-600 rounded-xl overflow-hidden shadow-lg border border-red-400/20 dark:border-red-700/20">
+              {/* Elementos decorativos (reduzidos) */}
+              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(255,255,255,0.1),transparent_30%)]"></div>
+              <div className="absolute -top-16 -left-16 w-48 h-48 bg-yellow-500/30 rounded-full blur-xl"></div>
+              <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-red-600/20 rounded-full blur-xl"></div>
+
+              {/* Header com título e badge de desconto (mais compacto) */}
+              <div className="relative p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center">
+                    <div className="bg-white p-2 rounded-full mr-3 shadow-md">
+                      <FaUtensils className="text-red-500 text-lg" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl md:text-2xl font-bold text-white flex items-center">
+                        OFERTAS ESPECIAIS
+                        <span className="bg-yellow-400 text-yellow-800 text-xs font-bold px-2 py-0.5 rounded-full ml-2">
+                          NOVO
+                        </span>
+                      </h2>
+                      <p className="text-white/90 text-sm">
+                        Economize até{" "}
+                        <span className="font-bold text-yellow-300">
+                          50% OFF
+                        </span>{" "}
+                        em pratos selecionados!
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setIsPromocoesModalOpen(true)}
+                    className="bg-white hover:bg-yellow-50 text-red-600 px-4 py-2 rounded-lg font-bold transition-all shadow-md hover:shadow-lg hidden md:flex items-center text-sm group"
+                  >
+                    Ver Todas{" "}
+                    <FaArrowRight className="ml-1 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
               </div>
 
-              {/* Faixa decorativa */}
-              <div className="h-1.5 bg-white/20"></div>
-            </div>
+              {/* Separador animado */}
+              <div className="h-1.5 bg-gradient-to-r from-yellow-500 via-white to-yellow-500 animate-gradient-x"></div>
 
-            {/* Conteúdo do banner */}
-            <div className="bg-red-50 dark:bg-red-900/10 p-6 rounded-b-xl border-x border-b border-red-100 dark:border-red-800/20 shadow-lg">
-              {loadingPromocoes ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {[...Array(4)].map((_, index) => (
-                    <div
-                      key={index}
-                      className="bg-gray-200 dark:bg-gray-700 rounded-xl h-72 animate-pulse shadow-md"
-                    ></div>
-                  ))}
-                </div>
-              ) : errorPromocoes ? (
-                <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg shadow-sm">
-                  {errorPromocoes}
-                </div>
-              ) : (
-                <div className="overflow-x-auto py-2">
-                  <div className="flex gap-6">
-                    {pratosPromocao.slice(0, 6).map((prato) => (
+              {/* Conteúdo do banner */}
+              <div className="bg-gradient-to-b from-red-50 to-orange-50 dark:from-red-900/10 dark:to-orange-900/5 p-5 relative">
+                {loadingPromocoes ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {[...Array(4)].map((_, index) => (
                       <div
-                        key={prato.id}
-                        className="min-w-[280px] max-w-[280px] bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-red-200 dark:border-red-900/20 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative"
-                      >
-                        {/* Tag de desconto em formato de fita */}
-                        <div className="absolute top-4 -right-8 bg-red-500 text-white py-1 px-10 font-bold text-sm transform rotate-45 z-10">
-                          {Math.round(
-                            ((prato.precoOriginal - prato.preco) /
-                              prato.precoOriginal) *
-                              100
-                          )}
-                          % OFF
-                        </div>
-
-                        <div className="relative h-40 overflow-hidden bg-green-100 dark:bg-green-900/20">
-                          {prato.imagem ? (
-                            <img
-                              src={prato.imagem}
-                              alt={prato.nome}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
-                              <FaUtensils className="text-3xl text-gray-400 dark:text-gray-500" />
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="p-4">
-                          <h3 className="font-semibold text-lg mb-1 text-gray-800 dark:text-white line-clamp-1">
-                            {prato.nome}
-                          </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">
-                            {prato.descricao}
-                          </p>
-
-                          <div className="mt-2 flex items-center justify-between">
-                            <div>
-                              <div className="flex items-center">
-                                <span className="text-gray-400 dark:text-gray-500 line-through text-sm">
-                                  R$ {prato.precoOriginal.toFixed(2)}
-                                </span>
-                                <span className="ml-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs px-1.5 py-0.5 rounded">
-                                  OFERTA
-                                </span>
-                              </div>
-                              <div className="text-red-600 dark:text-red-400 font-bold">
-                                R$ {prato.preco.toFixed(2)}
-                              </div>
-                            </div>
-
-                            <div className="text-right text-xs bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-green-600 dark:text-green-400">
-                              {prato.categoria}
-                            </div>
-                          </div>
-
-                          <Link
-                            to={`/prato/${prato.id}`}
-                            className="mt-3 w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center"
-                          >
-                            Ver detalhes
-                          </Link>
-                        </div>
-                      </div>
+                        key={index}
+                        className="bg-white/60 dark:bg-gray-700/40 rounded-xl h-64 animate-pulse shadow-md"
+                      ></div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : errorPromocoes ? (
+                  <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg shadow-sm">
+                    {errorPromocoes}
+                  </div>
+                ) : (
+                  <div className="relative">
+                    {/* Conteúdo principal do carrossel */}
+                    <div className="overflow-hidden">
+                      <div
+                        ref={promocoesContainerRef}
+                        className="flex transition-transform duration-500 ease-in-out"
+                        style={{
+                          transform: `translateX(-${currentPromoPage * 100}%)`,
+                        }}
+                      >
+                        {/* Dividir pratos em "páginas" para o carrossel */}
+                        {[
+                          ...Array(
+                            Math.ceil(pratosPromocao.length / promocoesPerPage)
+                          ),
+                        ].map((_, pageIndex) => (
+                          <div
+                            key={pageIndex}
+                            className="min-w-full flex gap-4 justify-center"
+                          >
+                            {pratosPromocao
+                              .slice(
+                                pageIndex * promocoesPerPage,
+                                pageIndex * promocoesPerPage + promocoesPerPage
+                              )
+                              .map((prato) => (
+                                <div
+                                  key={prato.id}
+                                  className="min-w-[250px] max-w-[250px] bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-red-200 dark:border-red-900/20 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative group"
+                                >
+                                  {/* Tag de desconto em formato de balão (menor) */}
+                                  <div className="absolute -top-1 -right-1 z-20">
+                                    <div className="relative">
+                                      <div className="bg-red-600 text-white font-bold text-sm w-12 h-12 rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-gray-800">
+                                        <div className="flex flex-col items-center leading-none text-center">
+                                          <span className="text-[10px]">
+                                            ATÉ
+                                          </span>
+                                          <span>
+                                            {prato.precoOriginal
+                                              ? Math.round(
+                                                  ((prato.precoOriginal -
+                                                    prato.preco) /
+                                                    prato.precoOriginal) *
+                                                    100
+                                                )
+                                              : 10}
+                                            %
+                                          </span>
+                                          <span className="text-[10px]">
+                                            OFF
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-red-800 rounded-full"></div>
+                                    </div>
+                                  </div>
 
-              {/* Botão mobile */}
-              <div className="sm:hidden flex justify-center mt-4">
-                <button
-                  onClick={() => setIsPromocoesModalOpen(true)}
-                  className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 rounded-lg font-medium"
-                >
-                  Ver todas as ofertas <FaArrowRight className="ml-1 inline" />
-                </button>
+                                  <div className="relative h-32 overflow-hidden bg-gradient-to-br from-yellow-100 to-red-100 dark:from-yellow-900/20 dark:to-red-900/20">
+                                    {prato.imagem ? (
+                                      <img
+                                        src={prato.imagem}
+                                        alt={prato.nome}
+                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center">
+                                        <FaUtensils className="text-2xl text-red-300 dark:text-red-700" />
+                                      </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                  </div>
+
+                                  <div className="p-3">
+                                    <h3 className="font-bold text-base mb-1 text-gray-800 dark:text-white line-clamp-1">
+                                      {prato.nome}
+                                    </h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">
+                                      {prato.descricao}
+                                    </p>
+
+                                    <div className="mt-1 flex items-center justify-between">
+                                      <div>
+                                        <div className="flex items-center">
+                                          <span className="text-gray-400 dark:text-gray-500 line-through text-xs">
+                                            R${" "}
+                                            {prato.precoOriginal
+                                              ? prato.precoOriginal.toFixed(2)
+                                              : prato.preco.toFixed(2)}
+                                          </span>
+                                          <span className="ml-1 bg-red-600 text-white text-[10px] font-bold px-1 py-0.5 rounded">
+                                            OFERTA
+                                          </span>
+                                        </div>
+                                        <div className="text-red-600 dark:text-red-400 font-bold">
+                                          R$ {prato.preco.toFixed(2)}
+                                        </div>
+                                      </div>
+
+                                      <div className="text-right text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded font-medium">
+                                        {prato.categoria}
+                                      </div>
+                                    </div>
+
+                                    <Link
+                                      to={`/prato/${prato.id}`}
+                                      className="mt-2 w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white py-1.5 rounded text-sm font-medium transition-all duration-300 flex items-center justify-center group-hover:shadow-md"
+                                    >
+                                      Ver detalhes
+                                    </Link>
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Controles de navegação (botões menores) */}
+                    {pratosPromocao.length > promocoesPerPage && (
+                      <>
+                        {/* Botões de navegação */}
+                        <button
+                          onClick={prevPromoPage}
+                          className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-red-600 hover:text-red-700 p-1.5 rounded-full shadow-md z-10 transition-all transform hover:scale-105"
+                          aria-label="Promoção anterior"
+                        >
+                          <FaChevronLeft className="text-sm" />
+                        </button>
+
+                        <button
+                          onClick={nextPromoPage}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-red-600 hover:text-red-700 p-1.5 rounded-full shadow-md z-10 transition-all transform hover:scale-105"
+                          aria-label="Próxima promoção"
+                        >
+                          <FaChevronRight className="text-sm" />
+                        </button>
+                      </>
+                    )}
+
+                    {/* Indicadores de página (menores e mais compactos) */}
+                    {pratosPromocao.length > promocoesPerPage && (
+                      <div className="flex justify-center mt-3 gap-1.5">
+                        {[
+                          ...Array(
+                            Math.ceil(pratosPromocao.length / promocoesPerPage)
+                          ),
+                        ].map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => goToPromoPage(i)}
+                            className={`w-2 h-2 rounded-full transition-all ${
+                              currentPromoPage === i
+                                ? "bg-red-600 w-4"
+                                : "bg-red-300 hover:bg-red-400"
+                            }`}
+                            aria-label={`Ir para página ${i + 1}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Botão mobile e tempo limitado (versão mais compacta) */}
+                <div className="flex flex-col sm:flex-row justify-between items-center mt-3 gap-2">
+                  <div className="flex items-center bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800/30 rounded-full px-3 py-1.5">
+                    <div className="animate-pulse mr-1.5 text-orange-500">
+                      <FaClock className="text-sm" />
+                    </div>
+                    <p className="text-orange-800 dark:text-orange-300 text-xs font-medium">
+                      Ofertas por tempo limitado! Aproveite.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setIsPromocoesModalOpen(true)}
+                    className="md:hidden bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium shadow-sm flex items-center"
+                  >
+                    Ver todas <FaArrowRight className="ml-1.5 text-xs" />
+                  </button>
+                </div>
               </div>
             </div>
           </section>
@@ -516,6 +668,44 @@ const Home = () => {
             </div>
           )}
         </section>
+
+        {/* Seção de Blog */}
+        <div className="my-24 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+          <div className="md:flex">
+            <div className="md:w-1/2 p-10 flex flex-col justify-center">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center mr-4">
+                  <FaBookMedical className="text-xl" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                  Blog LeveFit
+                </h2>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-8 text-base leading-relaxed">
+                Conteúdo exclusivo sobre nutrição, receitas saudáveis e dicas
+                para manter uma alimentação equilibrada. Nossos especialistas
+                compartilham conhecimento para te ajudar a alcançar seus
+                objetivos fitness.
+              </p>
+              <div>
+                <Link
+                  to="/blog"
+                  className="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-300 font-medium text-base"
+                >
+                  Explorar Artigos
+                  <HiArrowRight className="ml-3" />
+                </Link>
+              </div>
+            </div>
+            <div className="md:w-1/2 h-72 md:h-auto">
+              <img
+                src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1080&auto=format"
+                alt="Alimentação saudável - Blog LeveFit"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
       </main>
 
       <Footer />

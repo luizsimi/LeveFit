@@ -11,6 +11,8 @@ import Categorias from "./pages/Categorias";
 import Fornecedores from "./pages/Fornecedores";
 import Contato from "./pages/Contato";
 import DetalheFornecedor from "./pages/DetalheFornecedor";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 function App() {
   return (
@@ -23,6 +25,10 @@ function App() {
           <Route path="/fornecedores" element={<Fornecedores />} />
           <Route path="/fornecedores/:id" element={<DetalheFornecedor />} />
           <Route path="/contato" element={<Contato />} />
+
+          {/* Rotas para o Blog */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
 
           {/* Rota para o perfil do usuário */}
           <Route

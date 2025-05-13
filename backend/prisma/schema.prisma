@@ -76,3 +76,19 @@ model Avaliacao {
   clienteId  Int
   createdAt  DateTime @default(now())
 }
+
+model BlogPost {
+  id          Int       @id @default(autoincrement())
+  titulo      String
+  conteudo    String
+  imagem      String?
+  categoria   String    // ex: nutrição, receitas, treinos, bem-estar
+  slug        String    @unique
+  autor       String    @default("Equipe LeveFit")
+  tags        String?   // tags separadas por vírgula
+  publicado   Boolean   @default(true)
+  destaque    Boolean   @default(false)
+  visualizacoes Int      @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}

@@ -12,6 +12,7 @@ import clienteRouter from "./routes/cliente.routes";
 import fornecedorRouter from "./routes/fornecedor.routes";
 import pratoRouter from "./routes/prato.routes";
 import avaliacaoRouter from "./routes/avaliacao.routes";
+import blogRouter from "./routes/blog.routes";
 import { authMiddleware, isFornecedor } from "./middlewares/auth";
 
 // Carrega as variáveis de ambiente
@@ -100,6 +101,7 @@ app.use("/clientes", clienteRouter);
 app.use("/fornecedores", fornecedorRouter);
 app.use("/pratos", pratoRouter);
 app.use("/avaliacoes", avaliacaoRouter);
+app.use("/blog", blogRouter);
 
 // Porta do servidor
 const PORT = process.env.PORT || 3333;

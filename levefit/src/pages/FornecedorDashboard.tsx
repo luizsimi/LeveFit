@@ -72,6 +72,7 @@ const FornecedorDashboard = () => {
   const [pratosComAvaliacoes, setPratosComAvaliacoes] = useState<Prato[]>([]);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [activeTab, setActiveTab] = useState("pratos");
+  const [showGuide, setShowGuide] = useState(false);
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -421,6 +422,131 @@ const FornecedorDashboard = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Guia de Utilização do Dashboard */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8">
+          <div
+            className="p-4 bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800 text-white cursor-pointer flex justify-between items-center"
+            onClick={() => setShowGuide(!showGuide)}
+          >
+            <div className="flex items-center">
+              <FaChartBar className="mr-2 text-xl" />
+              <h3 className="text-lg font-bold">Como Utilizar o Dashboard</h3>
+            </div>
+            <div
+              className={`transform transition-transform duration-300 ${
+                showGuide ? "rotate-180" : ""
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {showGuide && (
+            <div className="p-6 animate-fadeIn">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Bem-vindo ao seu Dashboard! Aqui você pode gerenciar seus
+                pratos, acompanhar avaliações e maximizar suas vendas. Siga
+                estas etapas para otimizar sua experiência:
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Passo 1 */}
+                <div className="relative">
+                  <div className="absolute -top-4 -left-4 w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full opacity-70"></div>
+                  <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 h-full transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border-t-4 border-green-500">
+                    <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-full flex items-center justify-center mb-4 text-white">
+                      <FaPlus className="text-xl" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2 flex items-center">
+                      <span className="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm font-bold">
+                        1
+                      </span>
+                      Cadastre seus pratos
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Adicione pratos com descrições detalhadas, fotos de
+                      qualidade, categorias e preços. Lembre-se que refeições
+                      bem apresentadas atraem mais clientes!
+                    </p>
+                  </div>
+                </div>
+
+                {/* Passo 2 */}
+                <div className="relative mt-8 md:mt-4">
+                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full opacity-70"></div>
+                  <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 h-full transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border-t-4 border-green-500">
+                    <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-full flex items-center justify-center mb-4 text-white">
+                      <FaThumbsUp className="text-xl" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2 flex items-center">
+                      <span className="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm font-bold">
+                        2
+                      </span>
+                      Gerencie disponibilidade
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Controle quais pratos estão disponíveis através do botão
+                      "Editar". Mantenha seu cardápio atualizado para evitar
+                      frustrações dos clientes.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Passo 3 */}
+                <div className="relative mt-8 md:mt-8">
+                  <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-green-100 dark:bg-green-900/20 rounded-full opacity-70"></div>
+                  <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 h-full transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border-t-4 border-green-500">
+                    <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-full flex items-center justify-center mb-4 text-white">
+                      <FaComments className="text-xl" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2 flex items-center">
+                      <span className="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm font-bold">
+                        3
+                      </span>
+                      Monitore avaliações
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Acompanhe os comentários e avaliações dos clientes na aba
+                      "Avaliações". Use este feedback para melhorar seus
+                      produtos e aumentar a satisfação.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center mt-10 mb-2">
+                <div className="bg-green-50 dark:bg-green-900/10 rounded-lg p-4 max-w-2xl border border-green-100 dark:border-green-900/20">
+                  <div className="flex">
+                    <div className="mr-4 text-green-500 dark:text-green-400">
+                      <FaBell className="text-xl" />
+                    </div>
+                    <div>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm">
+                        <span className="font-bold">Dica:</span> Responda
+                        rapidamente quando clientes enviarem mensagens pelo
+                        WhatsApp. Mantenha suas informações de contato
+                        atualizadas e verifique o status da sua assinatura
+                        regularmente.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tabs de navegação */}
