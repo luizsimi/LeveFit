@@ -36,17 +36,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const storedUserType = localStorage.getItem("userType") as UserType;
     const storedUserData = localStorage.getItem("userData");
 
-    if (token && storedUserType && storedUserData) {
-      setIsAuthenticated(true);
-      setUserType(storedUserType);
-      setUserData(JSON.parse(storedUserData));
+    console.log(
+      "DEBUG - AuthContext - Inicializando, verificando localStorage:",
+      {
+        token: token ? "Existe" : "Não existe",
+        storedUserType,
+        storedUserData: storedUserData ? "Existe" : "Não existe",
+      }
+    );
 
-      // Configurar o axios para enviar o token em todas as requisições
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    if (token && storedUserType && storedUserData) {
+      try {
+        const parsedUserData = JSON.parse(storedUserData);
+        console.log("DEBUG - AuthContext - Dados do usuário recuperados:", {
+          userType: storedUserType,
+          id: parsedUserData.id,
+          nome: parsedUserData.nome,
+        });
+
+        setIsAuthenticated(true);
+        setUserType(storedUserType);
+        setUserData(parsedUserData);
+
+        // Configurar o axios para enviar o token em todas as requisições
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        console.log("DEBUG - AuthContext - Token configurado no axios");
+      } catch (error) {
+        console.error(
+          "DEBUG - AuthContext - Erro ao parsear dados do usuário:",
+          error
+        );
+        console.log(
+          "DEBUG - AuthContext - Conteúdo bruto de userData:",
+          storedUserData
+        );
+      }
+    } else {
+      console.log("DEBUG - AuthContext - Usuário não está autenticado");
     }
   }, []);
 
   const login = (token: string, type: UserType, data: UserData) => {
+    console.log("DEBUG - AuthContext - Realizando login:", {
+      tokenExiste: !!token,
+      type,
+      userData: data ? { id: data.id, nome: data.nome } : null,
+    });
+
     localStorage.setItem("token", token);
     localStorage.setItem("userType", type as string);
     localStorage.setItem("userData", JSON.stringify(data));
@@ -57,9 +93,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsAuthenticated(true);
     setUserType(type);
     setUserData(data);
+
+    console.log("DEBUG - AuthContext - Login concluído com sucesso");
   };
 
   const logout = () => {
+    console.log("DEBUG - AuthContext - Realizando logout");
+
     localStorage.removeItem("token");
     localStorage.removeItem("userType");
     localStorage.removeItem("userData");
@@ -70,6 +110,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsAuthenticated(false);
     setUserType(null);
     setUserData(null);
+
+    console.log("DEBUG - AuthContext - Logout concluído");
   };
 
   return (

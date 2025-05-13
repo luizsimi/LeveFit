@@ -52,6 +52,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
   const [carregandoPerfil, setCarregandoPerfil] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const {
     register,
@@ -59,7 +60,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
     reset,
     formState: { errors },
   } = useForm<ProfileFormData>({
-    resolver: yupResolver<any>(formSchema),
+    resolver: yupResolver(formSchema) as any,
     defaultValues: {
       nome: "",
       endereco: "",
@@ -249,41 +250,121 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
     </>
   );
 
-  const renderPasswordFields = () => (
+  const renderFornecedorForm = () => (
     <>
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">
-          Nova Senha
-        </label>
+        <label className="block text-gray-700 font-medium mb-2">Nome*</label>
         <input
-          type="password"
-          {...register("senha")}
+          type="text"
+          {...register("nome")}
           className={`w-full px-3 py-2 border ${
-            errors.senha ? "border-red-500" : "border-gray-300"
+            errors.nome ? "border-red-500" : "border-gray-300"
           } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
         />
-        {errors.senha && (
-          <p className="text-red-500 text-sm mt-1">{errors.senha.message}</p>
+        {errors.nome && (
+          <p className="text-red-500 text-sm mt-1">{errors.nome.message}</p>
         )}
       </div>
 
       <div className="mb-4">
+        <label className="block text-gray-700 font-medium mb-2">WhatsApp</label>
+        <input
+          type="text"
+          {...register("whatsapp")}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          placeholder="ex: (11) 99999-9999"
+        />
+      </div>
+
+      <div className="mb-4">
         <label className="block text-gray-700 font-medium mb-2">
-          Confirmar Nova Senha
+          URL da Logo (imagem)
         </label>
         <input
-          type="password"
-          {...register("confirmarSenha")}
-          className={`w-full px-3 py-2 border ${
-            errors.confirmarSenha ? "border-red-500" : "border-gray-300"
-          } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
+          type="text"
+          {...register("logo")}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          placeholder="URL da imagem da sua logo"
         />
-        {errors.confirmarSenha && (
-          <p className="text-red-500 text-sm mt-1">
-            {errors.confirmarSenha.message}
-          </p>
-        )}
       </div>
+
+      <div className="mb-4">
+        <label className="block text-gray-700 font-medium mb-2">
+          Descrição do seu negócio
+        </label>
+        <textarea
+          {...register("descricao")}
+          rows={4}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          placeholder="Descreva seu negócio, especialidades, horários de atendimento, etc."
+        ></textarea>
+        <p className="text-sm text-gray-500 mt-1">
+          Esta descrição será exibida nos cards e no perfil do seu
+          estabelecimento.
+        </p>
+      </div>
+    </>
+  );
+
+  const renderPasswordFields = () => (
+    <>
+      <div className="mb-4">
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="alterarSenha"
+            checked={mostrarSenha}
+            onChange={() => setMostrarSenha(!mostrarSenha)}
+            className="mr-2 h-4 w-4 text-green-600 focus:ring-green-500"
+          />
+          <label
+            htmlFor="alterarSenha"
+            className="text-gray-700 font-medium cursor-pointer"
+          >
+            Alterar senha
+          </label>
+        </div>
+      </div>
+
+      {mostrarSenha && (
+        <>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">
+              Nova Senha
+            </label>
+            <input
+              type="password"
+              {...register("senha")}
+              className={`w-full px-3 py-2 border ${
+                errors.senha ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
+            />
+            {errors.senha && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.senha.message}
+              </p>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">
+              Confirmar Nova Senha
+            </label>
+            <input
+              type="password"
+              {...register("confirmarSenha")}
+              className={`w-full px-3 py-2 border ${
+                errors.confirmarSenha ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
+            />
+            {errors.confirmarSenha && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.confirmarSenha.message}
+              </p>
+            )}
+          </div>
+        </>
+      )}
     </>
   );
 
@@ -320,7 +401,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit as any)}>
-              {userType === "cliente" && renderClienteForm()}
+              {userType === "cliente"
+                ? renderClienteForm()
+                : renderFornecedorForm()}
               {renderPasswordFields()}
 
               <div className="flex justify-end mt-6">

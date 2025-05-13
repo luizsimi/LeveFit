@@ -42,6 +42,24 @@ const PratoCard = ({
     return `https://wa.me/${numero}?text=${mensagem}`;
   };
 
+  // Função para lidar com erro ao carregar imagem
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    console.log("Erro ao carregar imagem do prato, usando fallback");
+    e.currentTarget.onerror = null; // Evita loop infinito
+    e.currentTarget.src = "/default-dish.png"; // Usa uma imagem local de fallback
+  };
+
+  // Função para lidar com erro ao carregar imagem do fornecedor
+  const handleFornecedorImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    console.log("Erro ao carregar imagem do fornecedor, usando fallback");
+    e.currentTarget.onerror = null; // Evita loop infinito
+    e.currentTarget.src = "/default-avatar.png"; // Usa uma imagem local de fallback
+  };
+
   // Renderizar as estrelas de avaliação
   const renderEstrelas = () => {
     const estrelas = [];
@@ -70,7 +88,12 @@ const PratoCard = ({
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="relative h-48 bg-gray-200">
         {imagem ? (
-          <img src={imagem} alt={nome} className="w-full h-full object-cover" />
+          <img
+            src={imagem}
+            alt={nome}
+            className="w-full h-full object-cover"
+            onError={handleImageError}
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-green-100">
             <span className="text-4xl">🍲</span>
@@ -100,6 +123,7 @@ const PratoCard = ({
                 src={fornecedor.logo}
                 alt={fornecedor.nome}
                 className="w-6 h-6 rounded-full mr-2"
+                onError={handleFornecedorImageError}
               />
             ) : (
               <div className="w-6 h-6 rounded-full bg-green-200 flex items-center justify-center mr-2">

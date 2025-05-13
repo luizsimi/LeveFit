@@ -53,7 +53,11 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
     setLoading(true);
 
     try {
-      console.log("LoginModal - Tentando login:", data.tipoUsuario);
+      console.log("DEBUG - LoginModal - Iniciando login:", {
+        email: data.email,
+        tipoUsuario: data.tipoUsuario,
+        url: `http://localhost:3333/auth/login/${data.tipoUsuario}`,
+      });
 
       const response = await axios.post(
         `http://localhost:3333/auth/login/${data.tipoUsuario}`,
@@ -63,7 +67,22 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
         }
       );
 
-      console.log("LoginModal - Resposta de login:", response.data);
+      console.log("DEBUG - LoginModal - Resposta do servidor:", {
+        status: response.status,
+        token: response.data.token ? "Recebido" : "Não recebido",
+        userData: response.data[data.tipoUsuario] ? "Recebido" : "Não recebido",
+      });
+
+      // Verificar se os dados do usuário e token foram recebidos corretamente
+      if (!response.data.token || !response.data[data.tipoUsuario]) {
+        console.error(
+          "DEBUG - LoginModal - Dados incompletos na resposta:",
+          response.data
+        );
+        setError("Resposta do servidor incompleta. Tente novamente.");
+        setLoading(false);
+        return;
+      }
 
       // Armazenar token e informações do usuário no localStorage
       localStorage.setItem("token", response.data.token);
@@ -72,6 +91,8 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
         "userData",
         JSON.stringify(response.data[data.tipoUsuario])
       );
+
+      console.log("DEBUG - LoginModal - Dados salvos no localStorage");
 
       // Usar o context login
       login(
@@ -82,18 +103,27 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
 
       // Verificar assinatura para fornecedores
       if (data.tipoUsuario === "fornecedor") {
-        console.log("LoginModal - Verificando assinatura do fornecedor");
+        console.log(
+          "DEBUG - LoginModal - Verificando assinatura do fornecedor"
+        );
         const fornecedor = response.data.fornecedor;
+        console.log("DEBUG - LoginModal - Dados do fornecedor:", {
+          id: fornecedor.id,
+          nome: fornecedor.nome,
+          assinaturaAtiva: fornecedor.assinaturaAtiva,
+        });
 
         if (fornecedor.assinaturaAtiva === false) {
-          console.log("LoginModal - Fornecedor sem assinatura ativa");
+          console.log(
+            "DEBUG - LoginModal - Fornecedor sem assinatura ativa, redirecionando"
+          );
           setAssinaturaWarning("Sua assinatura não está ativa");
 
           // Fechar modal e redirecionar após um curto delay
           setTimeout(() => {
             onClose();
             console.log(
-              "LoginModal - Redirecionando para página de assinatura"
+              "DEBUG - LoginModal - Redirecionando para página de assinatura"
             );
             window.location.href = "/dashboard/fornecedor/assinatura";
           }, 1500);
@@ -103,12 +133,19 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
       }
 
       // Fechar modal e não redireciona (mantém na página atual)
+      console.log("DEBUG - LoginModal - Login concluído com sucesso");
       onClose();
     } catch (error: unknown) {
-      console.error("LoginModal - Erro no login:", error);
+      console.error("DEBUG - LoginModal - Erro no login:", error);
 
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError<ErrorResponse>;
+        console.log("DEBUG - LoginModal - Detalhes do erro:", {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+        });
+
         if (axiosError.response && axiosError.response.data) {
           setError(axiosError.response.data.error || "Erro ao fazer login");
         } else {

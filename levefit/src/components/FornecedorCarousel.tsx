@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import FornecedorModal from "./FornecedorModal";
 
 interface Fornecedor {
   id: number;
   nome: string;
   descricao?: string;
   logo?: string;
+  whatsapp?: string;
+  telefone?: string;
 }
 
 const FornecedorCarousel = () => {
@@ -14,6 +16,9 @@ const FornecedorCarousel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedFornecedor, setSelectedFornecedor] =
+    useState<Fornecedor | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Número de fornecedores a serem exibidos por vez (responsivo)
   const getItemsPerSlide = () => {
@@ -34,6 +39,15 @@ const FornecedorCarousel = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Função de tratamento de erros para imagens
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    console.log("Erro ao carregar imagem, usando fallback");
+    e.currentTarget.onerror = null; // Evita loop infinito
+    e.currentTarget.src = "/default-avatar.png"; // Usa uma imagem local de fallback
+  };
+
   // Buscar fornecedores da API
   useEffect(() => {
     const fetchFornecedores = async () => {
@@ -53,6 +67,18 @@ const FornecedorCarousel = () => {
 
     fetchFornecedores();
   }, []);
+
+  // Função para abrir o modal com o fornecedor selecionado
+  const handleOpenModal = (fornecedor: Fornecedor) => {
+    setSelectedFornecedor(fornecedor);
+    setShowModal(true);
+  };
+
+  // Função para fechar o modal
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedFornecedor(null);
+  };
 
   // Navegar para o próximo slide
   const nextSlide = () => {
@@ -156,9 +182,9 @@ const FornecedorCarousel = () => {
                 className="px-2"
                 style={{ width: `${100 / fornecedores.length}%` }}
               >
-                <Link
-                  to={`/fornecedores/${fornecedor.id}`}
-                  className="block bg-white rounded-lg shadow-md p-6 h-full hover:shadow-lg transition-shadow duration-300"
+                <div
+                  className="block bg-white rounded-lg shadow-md p-6 h-full hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                  onClick={() => handleOpenModal(fornecedor)}
                 >
                   <div className="flex flex-col items-center text-center h-full">
                     {fornecedor.logo ? (
@@ -166,6 +192,7 @@ const FornecedorCarousel = () => {
                         src={fornecedor.logo}
                         alt={fornecedor.nome}
                         className="w-20 h-20 rounded-full mb-4 object-cover"
+                        onError={handleImageError}
                       />
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
@@ -185,7 +212,7 @@ const FornecedorCarousel = () => {
                       </p>
                     )}
                   </div>
-                </Link>
+                </div>
               </div>
             ))}
           </div>
@@ -231,6 +258,14 @@ const FornecedorCarousel = () => {
           />
         ))}
       </div>
+
+      {/* Modal de detalhes do fornecedor */}
+      {showModal && (
+        <FornecedorModal
+          fornecedor={selectedFornecedor}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };

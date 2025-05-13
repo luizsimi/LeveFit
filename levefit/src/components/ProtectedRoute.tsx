@@ -25,14 +25,21 @@ const ProtectedRoute = ({
       const userType = localStorage.getItem("userType") as UserType | null;
       const userData = localStorage.getItem("userData");
 
-      console.log("ProtectedRoute - Checking auth:", {
+      console.log("DEBUG - ProtectedRoute - Checking auth:", {
+        token: token ? "Existe" : "Não existe",
         userType,
+        userTypes,
+        userData: userData ? "Existe" : "Não existe",
         requiresActiveSubscription,
         path: location.pathname,
       });
 
       if (!token || !userType || !userTypes.includes(userType)) {
-        console.log("ProtectedRoute - Not authenticated");
+        console.log("DEBUG - ProtectedRoute - Not authenticated, reasons:", {
+          noToken: !token,
+          noUserType: !userType,
+          userTypeNotIncluded: userType ? !userTypes.includes(userType) : "N/A",
+        });
         setIsAuthenticated(false);
         return;
       }
@@ -41,23 +48,31 @@ const ProtectedRoute = ({
       if (requiresActiveSubscription && userType === "fornecedor" && userData) {
         try {
           const parsedUserData = JSON.parse(userData);
-          console.log("ProtectedRoute - User data:", parsedUserData);
+          console.log("DEBUG - ProtectedRoute - User data:", parsedUserData);
 
           // Verificar explicitamente se assinaturaAtiva é false
           if (parsedUserData.assinaturaAtiva === false) {
             console.log(
-              "ProtectedRoute - No active subscription, redirecting..."
+              "DEBUG - ProtectedRoute - No active subscription, redirecting..."
             );
             setHasActiveSubscription(false);
           } else {
-            console.log("ProtectedRoute - Has active subscription");
+            console.log(
+              "DEBUG - ProtectedRoute - Has active subscription:",
+              parsedUserData.assinaturaAtiva
+            );
             setHasActiveSubscription(true);
           }
         } catch (error) {
-          console.error("ProtectedRoute - Error parsing user data:", error);
+          console.error(
+            "DEBUG - ProtectedRoute - Error parsing user data:",
+            error
+          );
+          console.log("Raw userData:", userData);
         }
       }
 
+      console.log("DEBUG - ProtectedRoute - Authentication successful");
       setIsAuthenticated(true);
     };
 
@@ -66,21 +81,24 @@ const ProtectedRoute = ({
 
   // Enquanto verifica a autenticação, retorna null (não renderiza nada)
   if (isAuthenticated === null) {
+    console.log("DEBUG - ProtectedRoute - Still checking authentication");
     return null;
   }
 
   // Se não estiver autenticado, redireciona para a página inicial
   if (!isAuthenticated) {
+    console.log("DEBUG - ProtectedRoute - Not authenticated, redirecting to /");
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   // Se precisa de assinatura ativa mas não tem, redireciona para a página de assinatura
   if (requiresActiveSubscription && !hasActiveSubscription) {
-    console.log("ProtectedRoute - Redirecting to subscription page");
+    console.log("DEBUG - ProtectedRoute - Redirecting to subscription page");
     return <Navigate to="/dashboard/fornecedor/assinatura" replace />;
   }
 
   // Se estiver autenticado, renderiza o conteúdo protegido
+  console.log("DEBUG - ProtectedRoute - Rendering protected content");
   return <>{children}</>;
 };
 

@@ -17,7 +17,7 @@ interface Prato {
   nome: string;
   descricao: string;
   preco: number;
-  imagem?: string;
+  imagem?: string | null;
   categoria: string;
   disponivel: boolean;
   createdAt?: Date;
@@ -63,13 +63,13 @@ export class PratoController {
         });
       }
 
-      // Criar prato
+      // Criar prato (imagem é opcional)
       const prato = await prisma.prato.create({
         data: {
           nome,
           descricao,
           preco: Number(preco),
-          imagem,
+          imagem: imagem || null, // Permite valor null explicitamente
           categoria,
           fornecedorId: userId,
         },
@@ -305,7 +305,7 @@ export class PratoController {
       if (nome) dadosAtualizados.nome = nome;
       if (descricao) dadosAtualizados.descricao = descricao;
       if (preco) dadosAtualizados.preco = Number(preco);
-      if (imagem !== undefined) dadosAtualizados.imagem = imagem;
+      if (imagem !== undefined) dadosAtualizados.imagem = imagem || null;
       if (categoria) dadosAtualizados.categoria = categoria;
       if (disponivel !== undefined) dadosAtualizados.disponivel = disponivel;
 

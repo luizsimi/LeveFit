@@ -10,6 +10,7 @@ import UserProfilePage from "./components/UserProfilePage";
 import Categorias from "./pages/Categorias";
 import Fornecedores from "./pages/Fornecedores";
 import Contato from "./pages/Contato";
+import DetalheFornecedor from "./pages/DetalheFornecedor";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/pratos/:id" element={<DetalhePrato />} />
           <Route path="/categorias" element={<Categorias />} />
           <Route path="/fornecedores" element={<Fornecedores />} />
+          <Route path="/fornecedores/:id" element={<DetalheFornecedor />} />
           <Route path="/contato" element={<Contato />} />
 
           {/* Rota para o perfil do usuário */}

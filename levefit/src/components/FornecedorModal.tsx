@@ -1,0 +1,131 @@
+import { FaTimes, FaWhatsapp } from "react-icons/fa";
+
+interface Fornecedor {
+  id: number;
+  nome: string;
+  descricao?: string;
+  logo?: string;
+  whatsapp?: string;
+  telefone?: string;
+}
+
+interface FornecedorModalProps {
+  fornecedor: Fornecedor | null;
+  onClose: () => void;
+}
+
+const FornecedorModal = ({ fornecedor, onClose }: FornecedorModalProps) => {
+  if (!fornecedor) return null;
+
+  // Função de tratamento de erros para imagens
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    console.log("Erro ao carregar imagem, usando fallback");
+    e.currentTarget.onerror = null; // Evita loop infinito
+    e.currentTarget.src = "/default-avatar.png"; // Usa uma imagem local de fallback
+  };
+
+  // Verificar se o fornecedor tem algum contato (whatsapp ou telefone)
+  const temContato = () => {
+    return !!(fornecedor.whatsapp || fornecedor.telefone);
+  };
+
+  // Pegar o número de contato (whatsapp ou telefone)
+  const getNumeroContato = () => {
+    return fornecedor.whatsapp || fornecedor.telefone || "";
+  };
+
+  // Criar link do WhatsApp
+  const criarLinkWhatsApp = () => {
+    if (!temContato()) return "#";
+    const numero = getNumeroContato().replace(/\D/g, "");
+    const mensagem = encodeURIComponent(
+      `Olá, gostaria de conhecer mais sobre seus produtos`
+    );
+    return `https://wa.me/${numero}?text=${mensagem}`;
+  };
+
+  // Renderizar console log para debug
+  console.log("Dados do fornecedor:", fornecedor);
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()} // Impede que o clique seja propagado para o fundo
+      >
+        <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+          <h2 className="text-xl font-bold text-gray-800">
+            Detalhes do Fornecedor
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <FaTimes size={20} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <div className="flex flex-col items-center mb-6">
+            {fornecedor.logo ? (
+              <img
+                src={fornecedor.logo}
+                alt={fornecedor.nome}
+                className="w-24 h-24 rounded-full object-cover mb-4"
+                onError={handleImageError}
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                <span className="text-3xl font-bold text-green-600">
+                  {fornecedor.nome.charAt(0)}
+                </span>
+              </div>
+            )}
+            <h3 className="text-2xl font-bold text-center text-gray-800 mb-2">
+              {fornecedor.nome}
+            </h3>
+          </div>
+
+          {fornecedor.descricao ? (
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold text-gray-700 mb-2">
+                Sobre nós
+              </h4>
+              <p className="text-gray-600">{fornecedor.descricao}</p>
+            </div>
+          ) : (
+            <div className="mb-6">
+              <p className="text-gray-500 italic text-center">
+                Este fornecedor ainda não adicionou uma descrição.
+              </p>
+            </div>
+          )}
+
+          <div className="flex justify-between mt-6">
+            {temContato() ? (
+              <a
+                href={criarLinkWhatsApp()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-full justify-center"
+              >
+                <FaWhatsapp className="mr-2" /> Contatar via WhatsApp
+              </a>
+            ) : (
+              <p className="text-gray-500 italic text-center w-full">
+                Este fornecedor não disponibilizou contato.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FornecedorModal;
