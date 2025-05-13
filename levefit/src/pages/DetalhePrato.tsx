@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaStar, FaRegStar, FaArrowLeft, FaWhatsapp } from "react-icons/fa";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../contexts/AuthContext";
 
 interface Avaliacao {
   id: number;
@@ -40,6 +41,15 @@ const DetalhePrato = () => {
   const [prato, setPrato] = useState<Prato | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [novaAvaliacao, setNovaAvaliacao] = useState({
+    nota: 0,
+    comentario: "",
+  });
+  const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false);
+  const [avaliacaoSucesso, setAvaliacaoSucesso] = useState("");
+  const [avaliacaoErro, setAvaliacaoErro] = useState("");
+  const [notaHover, setNotaHover] = useState(0);
+  const { isAuthenticated, userType } = useAuth();
 
   useEffect(() => {
     const fetchPrato = async () => {
@@ -93,6 +103,75 @@ const DetalhePrato = () => {
       month: "2-digit",
       year: "numeric",
     });
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setNovaAvaliacao({
+      ...novaAvaliacao,
+      [name]: name === "nota" ? parseInt(value) : value,
+    });
+  };
+
+  const handleSubmitAvaliacao = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!isAuthenticated || userType !== "cliente") {
+      setAvaliacaoErro(
+        "Você precisa estar logado como cliente para avaliar um prato."
+      );
+      return;
+    }
+
+    if (novaAvaliacao.nota === 0) {
+      setAvaliacaoErro("Selecione uma nota de 1 a 5 estrelas.");
+      return;
+    }
+
+    setEnviandoAvaliacao(true);
+    setAvaliacaoErro("");
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        "http://localhost:3333/avaliacoes",
+        {
+          pratoId: id,
+          nota: novaAvaliacao.nota,
+          comentario: novaAvaliacao.comentario,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setAvaliacaoSucesso("Sua avaliação foi enviada com sucesso!");
+      setNovaAvaliacao({ nota: 0, comentario: "" });
+
+      // Atualizar os dados do prato para mostrar a nova avaliação
+      const response = await axios.get(`http://localhost:3333/pratos/${id}`);
+      setPrato(response.data);
+
+      // Limpar mensagem de sucesso após alguns segundos
+      setTimeout(() => {
+        setAvaliacaoSucesso("");
+      }, 5000);
+    } catch (error) {
+      console.error("Erro ao enviar avaliação:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        setAvaliacaoErro("Você já avaliou este prato anteriormente.");
+      } else {
+        setAvaliacaoErro(
+          "Ocorreu um erro ao enviar sua avaliação. Tente novamente mais tarde."
+        );
+      }
+    } finally {
+      setEnviandoAvaliacao(false);
+    }
   };
 
   if (loading) {
@@ -222,6 +301,86 @@ const DetalhePrato = () => {
           {/* Seção de Avaliações */}
           <div className="border-t border-gray-200 p-6">
             <h2 className="text-xl font-bold mb-4">Avaliações</h2>
+
+            {/* Formulário de avaliação para usuários logados como clientes */}
+            {isAuthenticated && userType === "cliente" && (
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <h3 className="text-lg font-semibold mb-2">
+                  Avalie este prato
+                </h3>
+
+                {avaliacaoSucesso && (
+                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    {avaliacaoSucesso}
+                  </div>
+                )}
+
+                {avaliacaoErro && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {avaliacaoErro}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmitAvaliacao}>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Nota
+                    </label>
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map((estrela) => (
+                        <div
+                          key={estrela}
+                          className="cursor-pointer text-xl"
+                          onClick={() =>
+                            setNovaAvaliacao({
+                              ...novaAvaliacao,
+                              nota: estrela,
+                            })
+                          }
+                          onMouseEnter={() => setNotaHover(estrela)}
+                          onMouseLeave={() => setNotaHover(0)}
+                        >
+                          {estrela <= (notaHover || novaAvaliacao.nota) ? (
+                            <FaStar className="text-yellow-400" />
+                          ) : (
+                            <FaRegStar className="text-yellow-400" />
+                          )}
+                        </div>
+                      ))}
+                      <span className="ml-2 text-gray-600">
+                        {novaAvaliacao.nota > 0 && `${novaAvaliacao.nota}/5`}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="comentario"
+                      className="block text-gray-700 font-medium mb-2"
+                    >
+                      Comentário
+                    </label>
+                    <textarea
+                      id="comentario"
+                      name="comentario"
+                      value={novaAvaliacao.comentario}
+                      onChange={handleInputChange}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="Compartilhe sua experiência com este prato..."
+                    ></textarea>
+                  </div>
+                  <button
+                    type="submit"
+                    className={`bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition ${
+                      enviandoAvaliacao ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
+                    disabled={enviandoAvaliacao}
+                  >
+                    {enviandoAvaliacao ? "Enviando..." : "Enviar Avaliação"}
+                  </button>
+                </form>
+              </div>
+            )}
 
             {prato.avaliacoes.length === 0 ? (
               <p className="text-gray-600">

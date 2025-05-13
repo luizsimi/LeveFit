@@ -1,8 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -35,7 +34,6 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
   const [error, setError] = useState("");
   const [assinaturaWarning, setAssinaturaWarning] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const { login } = useAuth();
 
   const {
@@ -104,16 +102,8 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
         }
       }
 
-      // Fechar modal
+      // Fechar modal e não redireciona (mantém na página atual)
       onClose();
-
-      // Redirecionar para a página apropriada (para casos sem problemas de assinatura)
-      if (data.tipoUsuario === "fornecedor") {
-        console.log("LoginModal - Redirecionando para dashboard do fornecedor");
-        navigate("/dashboard/fornecedor");
-      } else {
-        navigate("/");
-      }
     } catch (error: unknown) {
       console.error("LoginModal - Erro no login:", error);
 

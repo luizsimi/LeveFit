@@ -6,6 +6,10 @@ import FormularioPrato from "./pages/FormularioPrato";
 import AssinaturaFornecedor from "./pages/AssinaturaFornecedor";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
+import UserProfilePage from "./components/UserProfilePage";
+import Categorias from "./pages/Categorias";
+import Fornecedores from "./pages/Fornecedores";
+import Contato from "./pages/Contato";
 
 function App() {
   return (
@@ -14,6 +18,20 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/pratos/:id" element={<DetalhePrato />} />
+          <Route path="/categorias" element={<Categorias />} />
+          <Route path="/fornecedores" element={<Fornecedores />} />
+          <Route path="/contato" element={<Contato />} />
+
+          {/* Rota para o perfil do usuário */}
+          <Route
+            path="/perfil"
+            element={
+              <ProtectedRoute userTypes={["cliente", "fornecedor"]}>
+                <UserProfilePage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/dashboard/fornecedor"
             element={

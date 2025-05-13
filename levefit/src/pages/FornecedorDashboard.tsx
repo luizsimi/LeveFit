@@ -1,8 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
-import { FaPlus, FaEdit, FaTrash, FaStar } from "react-icons/fa";
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaStar,
+  FaRegStar,
+  FaComments,
+  FaUserEdit,
+} from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
+import UserProfileModal from "../components/UserProfileModal";
 
 interface Prato {
   id: number;
@@ -46,6 +55,9 @@ const FornecedorDashboard = () => {
   const [pratos, setPratos] = useState<Prato[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mostrarAvaliacoes, setMostrarAvaliacoes] = useState(false);
+  const [pratosComAvaliacoes, setPratosComAvaliacoes] = useState<Prato[]>([]);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -145,6 +157,44 @@ const FornecedorDashboard = () => {
     }
   };
 
+  // Função para renderizar estrelas
+  const renderEstrelas = (nota: number) => {
+    const estrelas = [];
+    const notaArredondada = Math.round(nota);
+
+    for (let i = 1; i <= 5; i++) {
+      if (i <= notaArredondada) {
+        estrelas.push(<FaStar key={i} className="text-yellow-400" />);
+      } else {
+        estrelas.push(<FaRegStar key={i} className="text-yellow-400" />);
+      }
+    }
+
+    return <div className="flex">{estrelas}</div>;
+  };
+
+  // Formatar data
+  const formatarData = (dataString: string) => {
+    const data = new Date(dataString);
+    return data.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  // Calcular total de avaliações de todos os pratos
+  const calcularTotalAvaliacoes = () => {
+    return pratos.reduce((total, prato) => total + prato.avaliacoes.length, 0);
+  };
+
+  // Buscar pratos com avaliações
+  const buscarPratosComAvaliacoes = () => {
+    const filtrados = pratos.filter((prato) => prato.avaliacoes.length > 0);
+    setPratosComAvaliacoes(filtrados);
+    setMostrarAvaliacoes(true);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
@@ -238,7 +288,7 @@ const FornecedorDashboard = () => {
                 </div>
               </div>
 
-              <div className="ml-auto">
+              <div className="ml-auto flex flex-col items-end">
                 <div
                   className={`px-3 py-1 rounded-full text-sm font-medium mb-2 ${
                     fornecedor.assinaturaAtiva
@@ -248,14 +298,22 @@ const FornecedorDashboard = () => {
                 >
                   Assinatura {fornecedor.assinaturaAtiva ? "Ativa" : "Inativa"}
                 </div>
-                <button
-                  onClick={() => navigate("/dashboard/fornecedor/assinatura")}
-                  className="text-sm px-3 py-1 border border-green-600 text-green-600 rounded-md hover:bg-green-50"
-                >
-                  {fornecedor.assinaturaAtiva
-                    ? "Gerenciar assinatura"
-                    : "Ativar assinatura"}
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setShowProfileModal(true)}
+                    className="text-sm px-3 py-1 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 flex items-center"
+                  >
+                    <FaUserEdit className="mr-1" /> Editar Perfil
+                  </button>
+                  <button
+                    onClick={() => navigate("/dashboard/fornecedor/assinatura")}
+                    className="text-sm px-3 py-1 border border-green-600 text-green-600 rounded-md hover:bg-green-50"
+                  >
+                    {fornecedor.assinaturaAtiva
+                      ? "Gerenciar assinatura"
+                      : "Ativar assinatura"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -263,105 +321,223 @@ const FornecedorDashboard = () => {
 
         <div className="mb-6 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800">Meus Pratos</h2>
-          <button
-            onClick={handleNovoPrato}
-            className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center"
-          >
-            <FaPlus className="mr-2" /> Novo Prato
-          </button>
-        </div>
-
-        {pratos.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-600 mb-4">
-              Você ainda não cadastrou nenhum prato.
-            </p>
+          <div className="flex space-x-3">
+            {calcularTotalAvaliacoes() > 0 && (
+              <button
+                onClick={buscarPratosComAvaliacoes}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center"
+              >
+                <FaComments className="mr-2" />
+                {mostrarAvaliacoes ? "Voltar aos Pratos" : "Ver Avaliações"} (
+                {calcularTotalAvaliacoes()})
+              </button>
+            )}
             <button
               onClick={handleNovoPrato}
-              className="bg-green-600 text-white px-4 py-2 rounded-md"
+              className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center"
             >
-              Cadastrar meu primeiro prato
+              <FaPlus className="mr-2" /> Novo Prato
             </button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pratos.map((prato) => (
-              <div
-                key={prato.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
-              >
-                <div className="relative h-40">
-                  {prato.imagem ? (
-                    <img
-                      src={prato.imagem}
-                      alt={prato.nome}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-green-100">
-                      <span className="text-4xl">🍲</span>
-                    </div>
-                  )}
-                  <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                    {prato.categoria}
-                  </div>
-                  {!prato.disponivel && (
-                    <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-                      <span className="text-white font-bold px-3 py-1 rounded">
-                        INDISPONÍVEL
-                      </span>
-                    </div>
-                  )}
-                </div>
+        </div>
 
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-bold text-gray-800">
-                      {prato.nome}
-                    </h3>
-                    <span className="font-bold text-green-600">
-                      R$ {formatarPreco(prato.preco)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center mb-2">
-                    <div className="flex items-center text-yellow-400 mr-1">
-                      <FaStar />
-                    </div>
-                    <span className="text-sm">
-                      {calcularMediaAvaliacoes(prato.avaliacoes).toFixed(1)} (
-                      {prato.avaliacoes.length} avaliações)
-                    </span>
-                  </div>
-
-                  <p className="text-gray-600 text-sm mb-4">
-                    {prato.descricao.length > 80
-                      ? prato.descricao.substring(0, 80) + "..."
-                      : prato.descricao}
-                  </p>
-
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      onClick={() => handleEditarPrato(prato.id)}
-                      className="p-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
-                      title="Editar prato"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleExcluirPrato(prato.id)}
-                      className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200"
-                      title="Excluir prato"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </div>
+        {/* Exibição de avaliações */}
+        {mostrarAvaliacoes ? (
+          <div>
+            {pratosComAvaliacoes.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                <p className="text-gray-600 mb-4">
+                  Seus pratos ainda não receberam avaliações.
+                </p>
+                <button
+                  onClick={() => setMostrarAvaliacoes(false)}
+                  className="bg-green-600 text-white px-4 py-2 rounded-md"
+                >
+                  Voltar para meus pratos
+                </button>
               </div>
-            ))}
+            ) : (
+              <div className="space-y-6">
+                {pratosComAvaliacoes.map((prato) => (
+                  <div
+                    key={prato.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-gray-200">
+                      <div className="flex items-center">
+                        <div className="w-16 h-16 mr-4">
+                          {prato.imagem ? (
+                            <img
+                              src={prato.imagem}
+                              alt={prato.nome}
+                              className="w-full h-full object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-green-100 rounded">
+                              <span className="text-2xl">🍲</span>
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-800">
+                            {prato.nome}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <span className="mr-2">
+                              {calcularMediaAvaliacoes(
+                                prato.avaliacoes
+                              ).toFixed(1)}
+                            </span>
+                            {renderEstrelas(
+                              calcularMediaAvaliacoes(prato.avaliacoes)
+                            )}
+                            <span className="ml-2">
+                              ({prato.avaliacoes.length}{" "}
+                              {prato.avaliacoes.length === 1
+                                ? "avaliação"
+                                : "avaliações"}
+                              )
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4">
+                      <h4 className="font-medium text-gray-700 mb-2">
+                        Avaliações dos clientes:
+                      </h4>
+                      <div className="space-y-4">
+                        {prato.avaliacoes.map((avaliacao) => (
+                          <div
+                            key={avaliacao.id}
+                            className="border-b border-gray-200 pb-4 last:border-b-0"
+                          >
+                            <div className="flex justify-between">
+                              <div className="font-semibold">
+                                {avaliacao.cliente.nome}
+                              </div>
+                              <div className="text-gray-500 text-sm">
+                                {formatarData(avaliacao.createdAt)}
+                              </div>
+                            </div>
+                            <div className="flex items-center my-1">
+                              {renderEstrelas(avaliacao.nota)}
+                              <span className="ml-2 text-gray-600 text-sm">
+                                {avaliacao.nota}/5
+                              </span>
+                            </div>
+                            <p className="text-gray-700">
+                              {avaliacao.comentario}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        ) : (
+          <>
+            {pratos.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                <p className="text-gray-600 mb-4">
+                  Você ainda não cadastrou nenhum prato.
+                </p>
+                <button
+                  onClick={handleNovoPrato}
+                  className="bg-green-600 text-white px-4 py-2 rounded-md"
+                >
+                  Cadastrar meu primeiro prato
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pratos.map((prato) => (
+                  <div
+                    key={prato.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden"
+                  >
+                    <div className="relative h-40">
+                      {prato.imagem ? (
+                        <img
+                          src={prato.imagem}
+                          alt={prato.nome}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-green-100">
+                          <span className="text-4xl">🍲</span>
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                        {prato.categoria}
+                      </div>
+                      {!prato.disponivel && (
+                        <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+                          <span className="text-white font-bold px-3 py-1 rounded">
+                            INDISPONÍVEL
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-bold text-gray-800">
+                          {prato.nome}
+                        </h3>
+                        <span className="font-bold text-green-600">
+                          R$ {formatarPreco(prato.preco)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center text-yellow-400 mr-1">
+                          <FaStar />
+                        </div>
+                        <span className="text-sm">
+                          {calcularMediaAvaliacoes(prato.avaliacoes).toFixed(1)}{" "}
+                          ({prato.avaliacoes.length} avaliações)
+                        </span>
+                      </div>
+
+                      <p className="text-gray-600 text-sm mb-4">
+                        {prato.descricao.length > 80
+                          ? prato.descricao.substring(0, 80) + "..."
+                          : prato.descricao}
+                      </p>
+
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleEditarPrato(prato.id)}
+                          className="p-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
+                          title="Editar prato"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          onClick={() => handleExcluirPrato(prato.id)}
+                          className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200"
+                          title="Excluir prato"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
+
+      {showProfileModal && (
+        <UserProfileModal onClose={() => setShowProfileModal(false)} />
+      )}
     </div>
   );
 };
