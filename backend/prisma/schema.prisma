@@ -39,18 +39,21 @@ model Fornecedor {
 }
 
 model Prato {
-  id           Int         @id @default(autoincrement())
-  nome         String
-  descricao    String
-  preco        Float
-  imagem       String?
-  categoria    String      // ex: salada, fitness, vegano, etc.
-  disponivel   Boolean     @default(true)
-  fornecedor   Fornecedor  @relation(fields: [fornecedorId], references: [id])
-  fornecedorId Int
-  avaliacoes   Avaliacao[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id               Int         @id @default(autoincrement())
+  nome             String
+  descricao        String
+  preco            Float
+  imagem           String?
+  categoria        String      // ex: salada, fitness, vegano, etc.
+  disponivel       Boolean     @default(true)
+  emPromocao       Boolean     @default(false)  // indica se o prato está em promoção
+  precoOriginal    Float?      // preço antes da promoção
+  dataFimPromocao  DateTime?   // data de término da promoção
+  fornecedor       Fornecedor  @relation(fields: [fornecedorId], references: [id])
+  fornecedorId     Int
+  avaliacoes       Avaliacao[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 }
 
 model Pedido {

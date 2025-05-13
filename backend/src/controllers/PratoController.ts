@@ -20,6 +20,9 @@ interface Prato {
   imagem?: string | null;
   categoria: string;
   disponivel: boolean;
+  emPromocao?: boolean;
+  precoOriginal?: number;
+  dataFimPromocao?: Date;
   createdAt?: Date;
   updatedAt?: Date;
   fornecedor?: {
@@ -34,7 +37,16 @@ interface Prato {
 export class PratoController {
   async create(req: Request, res: Response) {
     try {
-      const { nome, descricao, preco, imagem, categoria } = req.body;
+      const {
+        nome,
+        descricao,
+        preco,
+        imagem,
+        categoria,
+        emPromocao,
+        precoOriginal,
+        dataFimPromocao,
+      } = req.body;
       const { userId } = req;
 
       if (!userId) {
@@ -63,6 +75,22 @@ export class PratoController {
         });
       }
 
+      // Processar campos de promoção
+      let dadosPromocao = {};
+      if (emPromocao) {
+        if (!precoOriginal || precoOriginal <= 0) {
+          return res.status(400).json({
+            error: "Preço original é obrigatório para itens em promoção",
+          });
+        }
+
+        dadosPromocao = {
+          emPromocao: true,
+          precoOriginal: Number(precoOriginal),
+          dataFimPromocao: dataFimPromocao ? new Date(dataFimPromocao) : null,
+        };
+      }
+
       // Criar prato (imagem é opcional)
       const prato = await prisma.prato.create({
         data: {
@@ -72,6 +100,7 @@ export class PratoController {
           imagem: imagem || null, // Permite valor null explicitamente
           categoria,
           fornecedorId: userId,
+          ...dadosPromocao,
         },
       });
 
@@ -144,6 +173,9 @@ export class PratoController {
           imagem: true,
           categoria: true,
           disponivel: true,
+          emPromocao: true,
+          precoOriginal: true,
+          dataFimPromocao: true,
           createdAt: true,
           updatedAt: true,
           fornecedor: {
@@ -170,8 +202,41 @@ export class PratoController {
         },
       });
 
+      // Remover promoções expiradas
+      const hoje = new Date();
+      const pratosAtualizados = pratos.map((prato: any) => {
+        if (
+          prato.emPromocao &&
+          prato.dataFimPromocao &&
+          new Date(prato.dataFimPromocao) < hoje
+        ) {
+          // Se a promoção expirou, atualizamos no banco de dados
+          prisma.prato
+            .update({
+              where: { id: prato.id },
+              data: {
+                emPromocao: false,
+                precoOriginal: null,
+                dataFimPromocao: null,
+              },
+            })
+            .catch((err) =>
+              console.error("Erro ao atualizar promoção expirada:", err)
+            );
+
+          // E retornamos o prato sem promoção
+          return {
+            ...prato,
+            emPromocao: false,
+            precoOriginal: null,
+            dataFimPromocao: null,
+          };
+        }
+        return prato;
+      });
+
       // Calcular média das avaliações para cada prato
-      const pratosComMediaAvaliacao = pratos.map((prato: Prato) => {
+      const pratosComMediaAvaliacao = pratosAtualizados.map((prato: Prato) => {
         const totalAvaliacoes = prato.avaliacoes.length;
         const somaNotas = prato.avaliacoes.reduce(
           (acc: number, av: Avaliacao) => acc + av.nota,
@@ -356,6 +421,81 @@ export class PratoController {
       });
 
       return res.json({ message: "Prato excluído com sucesso" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+
+  async listarPratosPromocao(req: Request, res: Response) {
+    try {
+      const hoje = new Date();
+
+      const pratosPromocao = await prisma.prato.findMany({
+        where: {
+          fornecedor: {
+            assinaturaAtiva: true,
+            status: true,
+          },
+          disponivel: true,
+          emPromocao: true,
+          OR: [{ dataFimPromocao: null }, { dataFimPromocao: { gte: hoje } }],
+        },
+        select: {
+          id: true,
+          nome: true,
+          descricao: true,
+          preco: true,
+          imagem: true,
+          categoria: true,
+          disponivel: true,
+          emPromocao: true,
+          precoOriginal: true,
+          dataFimPromocao: true,
+          createdAt: true,
+          updatedAt: true,
+          fornecedor: {
+            select: {
+              id: true,
+              nome: true,
+              whatsapp: true,
+              logo: true,
+            },
+          },
+          avaliacoes: {
+            select: {
+              id: true,
+              nota: true,
+              comentario: true,
+              cliente: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Calcular média das avaliações para cada prato
+      const pratosComMediaAvaliacao = pratosPromocao.map((prato: Prato) => {
+        const totalAvaliacoes = prato.avaliacoes.length;
+        const somaNotas = prato.avaliacoes.reduce(
+          (acc: number, av: Avaliacao) => acc + av.nota,
+          0
+        );
+        const mediaAvaliacao =
+          totalAvaliacoes > 0 ? somaNotas / totalAvaliacoes : 0;
+
+        return {
+          ...prato,
+          mediaAvaliacao,
+          totalAvaliacoes,
+        };
+      });
+
+      return res.json(pratosComMediaAvaliacao);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Erro interno do servidor" });

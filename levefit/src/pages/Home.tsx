@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import FornecedorCarousel from "../components/FornecedorCarousel";
 import CategoriaFilter from "../components/CategoriaFilter";
 import PratoCard from "../components/PratoCard";
+import PromocoesModal from "../components/PromocoesModal";
 import {
   FaUtensils,
   FaWhatsapp,
@@ -23,10 +24,13 @@ interface Prato {
   nome: string;
   descricao: string;
   preco: number;
+  precoOriginal: number;
   imagem?: string;
   categoria: string;
   mediaAvaliacao: number;
   totalAvaliacoes: number;
+  emPromocao: boolean;
+  dataFimPromocao?: string;
   fornecedor: {
     id: number;
     nome: string;
@@ -37,11 +41,15 @@ interface Prato {
 
 const Home = () => {
   const [pratos, setPratos] = useState<Prato[]>([]);
+  const [pratosPromocao, setPratosPromocao] = useState<Prato[]>([]);
   const [categoriaFiltrada, setCategoriaFiltrada] = useState<string | null>(
     null
   );
   const [loading, setLoading] = useState(true);
+  const [loadingPromocoes, setLoadingPromocoes] = useState(true);
   const [error, setError] = useState("");
+  const [errorPromocoes, setErrorPromocoes] = useState("");
+  const [isPromocoesModalOpen, setIsPromocoesModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchPratos = async () => {
@@ -65,6 +73,26 @@ const Home = () => {
 
     fetchPratos();
   }, [categoriaFiltrada]);
+
+  // Buscar pratos em promoção
+  useEffect(() => {
+    const fetchPratosPromocao = async () => {
+      try {
+        setLoadingPromocoes(true);
+        const response = await axios.get(
+          "http://localhost:3333/pratos/promocoes"
+        );
+        setPratosPromocao(response.data);
+        setLoadingPromocoes(false);
+      } catch (error) {
+        console.error("Erro ao buscar promoções:", error);
+        setErrorPromocoes("Erro ao carregar promoções.");
+        setLoadingPromocoes(false);
+      }
+    };
+
+    fetchPratosPromocao();
+  }, []);
 
   const handleCategoriaChange = (categoria: string | null) => {
     setCategoriaFiltrada(categoria);
@@ -193,6 +221,143 @@ const Home = () => {
 
         {/* Carrossel de Fornecedores */}
         <FornecedorCarousel />
+
+        {/* Banner de Promoções */}
+        {pratosPromocao.length > 0 && (
+          <section className="mt-12 mb-10">
+            {/* Header do banner em estilo promocional */}
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 dark:from-red-600 dark:to-orange-600 rounded-t-xl overflow-hidden shadow-lg relative">
+              <div className="relative flex items-center justify-between p-6">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center">
+                    <div className="bg-white p-2 rounded-full mr-3 shadow-md">
+                      <FaUtensils className="text-red-500" />
+                    </div>
+                    Ofertas Especiais
+                  </h2>
+                  <p className="text-white/90 mt-1 ml-12">
+                    Economize até 50% em pratos selecionados!
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setIsPromocoesModalOpen(true)}
+                  className="bg-white text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg font-medium transition-all shadow-md hidden sm:flex items-center"
+                >
+                  Ver todas <FaArrowRight className="ml-2" />
+                </button>
+              </div>
+
+              {/* Faixa decorativa */}
+              <div className="h-1.5 bg-white/20"></div>
+            </div>
+
+            {/* Conteúdo do banner */}
+            <div className="bg-red-50 dark:bg-red-900/10 p-6 rounded-b-xl border-x border-b border-red-100 dark:border-red-800/20 shadow-lg">
+              {loadingPromocoes ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {[...Array(4)].map((_, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-200 dark:bg-gray-700 rounded-xl h-72 animate-pulse shadow-md"
+                    ></div>
+                  ))}
+                </div>
+              ) : errorPromocoes ? (
+                <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg shadow-sm">
+                  {errorPromocoes}
+                </div>
+              ) : (
+                <div className="overflow-x-auto py-2">
+                  <div className="flex gap-6">
+                    {pratosPromocao.slice(0, 6).map((prato) => (
+                      <div
+                        key={prato.id}
+                        className="min-w-[280px] max-w-[280px] bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-red-200 dark:border-red-900/20 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative"
+                      >
+                        {/* Tag de desconto em formato de fita */}
+                        <div className="absolute top-4 -right-8 bg-red-500 text-white py-1 px-10 font-bold text-sm transform rotate-45 z-10">
+                          {Math.round(
+                            ((prato.precoOriginal - prato.preco) /
+                              prato.precoOriginal) *
+                              100
+                          )}
+                          % OFF
+                        </div>
+
+                        <div className="relative h-40 overflow-hidden bg-green-100 dark:bg-green-900/20">
+                          {prato.imagem ? (
+                            <img
+                              src={prato.imagem}
+                              alt={prato.nome}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                              <FaUtensils className="text-3xl text-gray-400 dark:text-gray-500" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="p-4">
+                          <h3 className="font-semibold text-lg mb-1 text-gray-800 dark:text-white line-clamp-1">
+                            {prato.nome}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">
+                            {prato.descricao}
+                          </p>
+
+                          <div className="mt-2 flex items-center justify-between">
+                            <div>
+                              <div className="flex items-center">
+                                <span className="text-gray-400 dark:text-gray-500 line-through text-sm">
+                                  R$ {prato.precoOriginal.toFixed(2)}
+                                </span>
+                                <span className="ml-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs px-1.5 py-0.5 rounded">
+                                  OFERTA
+                                </span>
+                              </div>
+                              <div className="text-red-600 dark:text-red-400 font-bold">
+                                R$ {prato.preco.toFixed(2)}
+                              </div>
+                            </div>
+
+                            <div className="text-right text-xs bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-green-600 dark:text-green-400">
+                              {prato.categoria}
+                            </div>
+                          </div>
+
+                          <Link
+                            to={`/prato/${prato.id}`}
+                            className="mt-3 w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center"
+                          >
+                            Ver detalhes
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Botão mobile */}
+              <div className="sm:hidden flex justify-center mt-4">
+                <button
+                  onClick={() => setIsPromocoesModalOpen(true)}
+                  className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 rounded-lg font-medium"
+                >
+                  Ver todas as ofertas <FaArrowRight className="ml-1 inline" />
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Modal de Promoções */}
+        <PromocoesModal
+          isOpen={isPromocoesModalOpen}
+          onClose={() => setIsPromocoesModalOpen(false)}
+        />
 
         {/* Passo a Passo - Como Fazer Seu Pedido */}
         <section className="mt-16 mb-16" id="como-funciona">

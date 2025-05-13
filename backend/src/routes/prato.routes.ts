@@ -7,6 +7,9 @@ const pratoController = new PratoController();
 
 // Rotas públicas
 pratoRouter.get("/", (req, res) => pratoController.listarTodosPratos(req, res));
+pratoRouter.get("/promocoes", (req, res) =>
+  pratoController.listarPratosPromocao(req, res)
+);
 pratoRouter.get("/categorias", (req, res) =>
   pratoController.listarCategorias(req, res)
 );

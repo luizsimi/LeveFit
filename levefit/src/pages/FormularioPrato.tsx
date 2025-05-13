@@ -29,6 +29,9 @@ interface PratoFormData {
   imagem?: string | null;
   categoria: string;
   disponivel: boolean;
+  emPromocao: boolean;
+  precoOriginal?: number;
+  dataFimPromocao?: string;
 }
 
 interface ErrorResponse {
@@ -48,6 +51,18 @@ const pratoSchema = yup
     imagem: yup.string().nullable().optional(),
     categoria: yup.string().required("Categoria é obrigatória"),
     disponivel: yup.boolean().required("Disponibilidade é obrigatória"),
+    emPromocao: yup.boolean().default(false),
+    precoOriginal: yup
+      .number()
+      .typeError("Preço original deve ser um número")
+      .positive("Preço original deve ser positivo")
+      .when("emPromocao", {
+        is: true,
+        then: (schema) =>
+          schema.required("Preço original é obrigatório quando em promoção"),
+        otherwise: (schema) => schema.optional(),
+      }),
+    dataFimPromocao: yup.string().optional(),
   })
   .required();
 
@@ -94,6 +109,9 @@ const FormularioPrato = () => {
       categoria: "",
       imagem: null,
       disponivel: true,
+      emPromocao: false,
+      precoOriginal: undefined,
+      dataFimPromocao: undefined,
     },
     mode: "onChange",
   });
@@ -101,6 +119,8 @@ const FormularioPrato = () => {
   const imagemValue = watch("imagem");
   const categoriaValue = watch("categoria");
   const disponivelValue = watch("disponivel");
+  const emPromocaoValue = watch("emPromocao");
+  const precoValue = watch("preco");
 
   useEffect(() => {
     const buscarPrato = async () => {
@@ -123,6 +143,13 @@ const FormularioPrato = () => {
           imagem: response.data.imagem || null,
           categoria: response.data.categoria,
           disponivel: response.data.disponivel,
+          emPromocao: response.data.emPromocao || false,
+          precoOriginal: response.data.precoOriginal,
+          dataFimPromocao: response.data.dataFimPromocao
+            ? new Date(response.data.dataFimPromocao)
+                .toISOString()
+                .split("T")[0]
+            : undefined,
         });
 
         // Se houver imagem, definir o preview
@@ -585,6 +612,102 @@ const FormularioPrato = () => {
                       </li>
                     </ul>
                   </div>
+                </div>
+              </div>
+
+              {/* Seção de Promoção */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                    <FaTags className="mr-2 text-green-600 dark:text-green-400" />
+                    Configurar Promoção
+                  </h3>
+                </div>
+
+                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                  <div className="flex items-center mb-4">
+                    <input
+                      type="checkbox"
+                      id="emPromocao"
+                      {...register("emPromocao")}
+                      className="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                    />
+                    <label
+                      htmlFor="emPromocao"
+                      className="ml-2 text-gray-700 dark:text-gray-300"
+                    >
+                      Colocar este prato em promoção
+                    </label>
+                  </div>
+
+                  {emPromocaoValue && (
+                    <div className="space-y-4 mt-2 p-3 bg-white dark:bg-gray-800 rounded-lg animate-fadeIn">
+                      <div>
+                        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+                          Preço Promocional (R$)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          {...register("preco")}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+                          Preço Original (R$)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          {...register("precoOriginal")}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+                        />
+                        {errors.precoOriginal && (
+                          <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                            {errors.precoOriginal.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
+                          Válido até (opcional)
+                        </label>
+                        <input
+                          type="date"
+                          {...register("dataFimPromocao")}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+                        />
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          Deixe em branco para promoção sem data de término.
+                        </p>
+                      </div>
+
+                      <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-100 dark:border-yellow-900/30">
+                        <div className="flex">
+                          <FaInfoCircle className="text-yellow-600 dark:text-yellow-500 mt-1 mr-2 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">
+                                Economia para o cliente:
+                              </span>{" "}
+                              {watch("precoOriginal") && watch("preco")
+                                ? `R$ ${(
+                                    watch("precoOriginal") - watch("preco")
+                                  ).toFixed(2)} (${Math.round(
+                                    ((watch("precoOriginal") - watch("preco")) /
+                                      watch("precoOriginal")) *
+                                      100
+                                  )}% de desconto)`
+                                : "Defina os preços para calcular a economia"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
