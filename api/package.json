@@ -1,0 +1,11 @@
+{
+  "name": "levefit-api",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "express": "^5.1.0",
+    "cors": "^2.8.5",
+    "http": "^0.0.1-security",
+    "next": "^14.1.0"
+  }
+}
