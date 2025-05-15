@@ -1,0 +1,12 @@
+{
+  "name": "levefit-monorepo",
+  "private": true,
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
+  }
+}
