@@ -21,6 +21,8 @@ import {
   FaClock,
   FaChevronLeft,
   FaChevronRight,
+  FaPause,
+  FaPlay,
 } from "react-icons/fa";
 import { HiArrowRight } from "react-icons/hi";
 
@@ -58,6 +60,33 @@ const Home = () => {
   const [currentPromoPage, setCurrentPromoPage] = useState(0);
   const promocoesPerPage = 3; // Número de promoções visíveis por página
   const promocoesContainerRef = useRef<HTMLDivElement>(null);
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(true);
+  const autoPlayInterval = useRef<number | null>(null);
+
+  // Refs e estado para efeito de parallax
+  const heroImageRef = useRef<HTMLDivElement>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  // Gerenciar posição do mouse para efeito de parallax
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      if (heroImageRef.current) {
+        const { clientX, clientY } = event;
+        const { left, top, width, height } =
+          heroImageRef.current.getBoundingClientRect();
+
+        const x = (clientX - left) / width - 0.5;
+        const y = (clientY - top) / height - 0.5;
+
+        setMousePosition({ x, y });
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchPratos = async () => {
@@ -102,6 +131,47 @@ const Home = () => {
     fetchPratosPromocao();
   }, []);
 
+  // Gerenciar carrossel automático
+  useEffect(() => {
+    if (pratosPromocao.length <= promocoesPerPage) return;
+
+    const startAutoPlay = () => {
+      if (autoPlayInterval.current) clearInterval(autoPlayInterval.current);
+
+      autoPlayInterval.current = window.setInterval(() => {
+        if (autoPlayEnabled) {
+          setCurrentPromoPage(
+            (prev) =>
+              (prev + 1) % Math.ceil(pratosPromocao.length / promocoesPerPage)
+          );
+        }
+      }, 5000); // Mudar slide a cada 5 segundos
+    };
+
+    if (autoPlayEnabled) {
+      startAutoPlay();
+    }
+
+    return () => {
+      if (autoPlayInterval.current) {
+        clearInterval(autoPlayInterval.current);
+        autoPlayInterval.current = null;
+      }
+    };
+  }, [pratosPromocao, promocoesPerPage, autoPlayEnabled, currentPromoPage]);
+
+  // Reseta o temporizador quando o usuário muda manualmente o slide
+  const resetAutoPlayTimer = () => {
+    if (autoPlayInterval.current) {
+      clearInterval(autoPlayInterval.current);
+      autoPlayInterval.current = null;
+    }
+    // Desativamos temporariamente o autoplay
+    setAutoPlayEnabled(false);
+    // Reativamos após 10 segundos para permitir que o usuário veja o slide atual
+    setTimeout(() => setAutoPlayEnabled(true), 10000);
+  };
+
   const handleCategoriaChange = (categoria: string | null) => {
     setCategoriaFiltrada(categoria);
   };
@@ -109,6 +179,10 @@ const Home = () => {
   // Funções para o carrossel de promoções
   const nextPromoPage = () => {
     if (pratosPromocao.length <= promocoesPerPage) return;
+
+    // Pausar autoplay temporariamente quando usuário interage
+    resetAutoPlayTimer();
+
     setCurrentPromoPage(
       (prev) => (prev + 1) % Math.ceil(pratosPromocao.length / promocoesPerPage)
     );
@@ -116,6 +190,10 @@ const Home = () => {
 
   const prevPromoPage = () => {
     if (pratosPromocao.length <= promocoesPerPage) return;
+
+    // Pausar autoplay temporariamente quando usuário interage
+    resetAutoPlayTimer();
+
     setCurrentPromoPage((prev) =>
       prev === 0
         ? Math.ceil(pratosPromocao.length / promocoesPerPage) - 1
@@ -124,6 +202,9 @@ const Home = () => {
   };
 
   const goToPromoPage = (pageIndex: number) => {
+    // Pausar autoplay temporariamente quando usuário interage
+    resetAutoPlayTimer();
+
     setCurrentPromoPage(pageIndex);
   };
 
@@ -133,10 +214,13 @@ const Home = () => {
 
       <main className="container mx-auto px-4 py-8">
         {/* Banner Hero - Versão Simplificada com Imagem */}
-        <div className="bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800 text-white rounded-xl shadow-lg overflow-hidden mb-12">
+        <div className="bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800 text-white rounded-xl shadow-lg overflow-hidden mb-12 animate-fadeIn">
           <div className="md:flex">
             {/* Conteúdo textual */}
-            <div className="p-8 md:w-1/2 flex flex-col justify-center">
+            <div
+              className="p-8 md:w-1/2 flex flex-col justify-center animate-slideUp"
+              style={{ animationDelay: "0.2s" }}
+            >
               <div className="flex items-center mb-3">
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
                   <FaSeedling className="text-green-600 text-lg" />
@@ -175,13 +259,104 @@ const Home = () => {
             </div>
 
             {/* Imagem */}
-            <div className="md:w-1/2 h-64 md:h-auto relative overflow-hidden">
+            <div
+              ref={heroImageRef}
+              className="md:w-1/2 h-64 md:h-auto relative overflow-hidden animate-fadeIn"
+              style={{ animationDelay: "0.4s" }}
+            >
+              {/* Container para sombra pulsante */}
+              <div className="absolute inset-0 animate-shadow-pulse rounded-xl"></div>
+
               <img
                 src="https://images.unsplash.com/photo-1607532941433-304659e8198a?auto=format&fit=crop&q=80&w=1200&ixlib=rb-4.0.3"
                 alt="Refeição saudável com proteínas, legumes e vegetais"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover animate-zoom-inout"
+                style={{
+                  transform: `scale(1.05) translate(${
+                    mousePosition.x * 10
+                  }px, ${mousePosition.y * 10}px)`,
+                }}
               />
+
+              {/* Elementos decorativos animados */}
               <div className="absolute inset-0 bg-gradient-to-r from-green-700/50 to-transparent"></div>
+
+              {/* Efeito de brilho que se move pela imagem */}
+              <div className="absolute inset-0 animate-shine"></div>
+
+              {/* Elementos decorativos flutuantes */}
+              <div
+                className="absolute top-[10%] left-[15%] w-12 h-12 rounded-full bg-yellow-400/30 backdrop-blur-sm animate-float"
+                style={{
+                  animationDelay: "0s",
+                  transform: `translate(${mousePosition.x * -20}px, ${
+                    mousePosition.y * -20
+                  }px)`,
+                }}
+              ></div>
+              <div
+                className="absolute top-[40%] right-[20%] w-10 h-10 rounded-full bg-green-500/30 backdrop-blur-sm animate-float"
+                style={{
+                  animationDelay: "2s",
+                  transform: `translate(${mousePosition.x * 25}px, ${
+                    mousePosition.y * 25
+                  }px)`,
+                }}
+              ></div>
+              <div
+                className="absolute bottom-[15%] left-[30%] w-8 h-8 rounded-full bg-red-400/30 backdrop-blur-sm animate-float"
+                style={{
+                  animationDelay: "1s",
+                  transform: `translate(${mousePosition.x * -15}px, ${
+                    mousePosition.y * 15
+                  }px)`,
+                }}
+              ></div>
+
+              {/* Ícones decorativos */}
+              <div
+                className="absolute top-[25%] right-[15%] text-white/70 animate-float"
+                style={{
+                  animationDelay: "1.5s",
+                  transform: `translate(${mousePosition.x * 15}px, ${
+                    mousePosition.y * -20
+                  }px)`,
+                }}
+              >
+                <FaLeaf className="text-3xl text-green-400/80" />
+              </div>
+              <div
+                className="absolute bottom-[25%] right-[25%] text-white/70 animate-float"
+                style={{
+                  animationDelay: "0.5s",
+                  transform: `translate(${mousePosition.x * 20}px, ${
+                    mousePosition.y * 15
+                  }px)`,
+                }}
+              >
+                <FaSeedling className="text-3xl text-green-300/80" />
+              </div>
+
+              {/* Elemento decorativo circular rotativo */}
+              <div className="absolute -right-16 -bottom-16 w-32 h-32 border-4 border-dashed border-green-300/30 rounded-full animate-rotate"></div>
+              <div
+                className="absolute -left-10 -top-10 w-20 h-20 border-2 border-dashed border-yellow-200/30 rounded-full animate-rotate"
+                style={{ animationDirection: "reverse" }}
+              ></div>
+
+              {/* Partículas aparecendo e desaparecendo */}
+              {[...Array(10)].map((_, index) => (
+                <div
+                  key={index}
+                  className="absolute w-2 h-2 rounded-full bg-white/70 animate-particle"
+                  style={{
+                    top: `${Math.random() * 100}%`,
+                    left: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 5}s`,
+                    animationDuration: `${3 + Math.random() * 3}s`,
+                  }}
+                ></div>
+              ))}
             </div>
           </div>
 
@@ -455,28 +630,66 @@ const Home = () => {
                         >
                           <FaChevronRight className="text-sm" />
                         </button>
+
+                        {/* Botão para pausar/retomar autoplay */}
+                        <button
+                          onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                          className="absolute right-1 bottom-1 bg-white/80 hover:bg-white text-red-600 hover:text-red-700 p-1.5 rounded-full shadow-md z-10 transition-all transform hover:scale-105"
+                          aria-label={
+                            autoPlayEnabled
+                              ? "Pausar carrossel"
+                              : "Retomar carrossel"
+                          }
+                        >
+                          {autoPlayEnabled ? (
+                            <FaPause className="text-xs" />
+                          ) : (
+                            <FaPlay className="text-xs" />
+                          )}
+                        </button>
                       </>
                     )}
 
-                    {/* Indicadores de página (menores e mais compactos) */}
+                    {/* Indicadores de página e progresso */}
                     {pratosPromocao.length > promocoesPerPage && (
-                      <div className="flex justify-center mt-3 gap-1.5">
-                        {[
-                          ...Array(
-                            Math.ceil(pratosPromocao.length / promocoesPerPage)
-                          ),
-                        ].map((_, i) => (
-                          <button
-                            key={i}
-                            onClick={() => goToPromoPage(i)}
-                            className={`w-2 h-2 rounded-full transition-all ${
-                              currentPromoPage === i
-                                ? "bg-red-600 w-4"
-                                : "bg-red-300 hover:bg-red-400"
-                            }`}
-                            aria-label={`Ir para página ${i + 1}`}
-                          />
-                        ))}
+                      <div className="flex flex-col items-center mt-3 gap-1">
+                        {/* Barra de progresso */}
+                        {autoPlayEnabled && (
+                          <div className="w-24 h-1 bg-red-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-red-600 animate-progress-bar"
+                              style={{
+                                animationDuration: "5s",
+                                animationIterationCount: "infinite",
+                                animationPlayState: autoPlayEnabled
+                                  ? "running"
+                                  : "paused",
+                              }}
+                            ></div>
+                          </div>
+                        )}
+
+                        {/* Indicadores de página */}
+                        <div className="flex justify-center gap-1.5">
+                          {[
+                            ...Array(
+                              Math.ceil(
+                                pratosPromocao.length / promocoesPerPage
+                              )
+                            ),
+                          ].map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={() => goToPromoPage(i)}
+                              className={`w-2 h-2 rounded-full transition-all ${
+                                currentPromoPage === i
+                                  ? "bg-red-600 w-4"
+                                  : "bg-red-300 hover:bg-red-400"
+                              }`}
+                              aria-label={`Ir para página ${i + 1}`}
+                            />
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

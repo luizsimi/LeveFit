@@ -13,7 +13,11 @@ import {
   FaInfoCircle,
   FaClock,
   FaLeaf,
+  FaFire,
 } from "react-icons/fa";
+import { GiSlicedBread } from "react-icons/gi";
+import { BiDumbbell } from "react-icons/bi";
+import { IoNutrition } from "react-icons/io5";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -39,6 +43,12 @@ interface Prato {
   disponivel: boolean;
   mediaAvaliacao: number;
   totalAvaliacoes: number;
+  calorias?: number;
+  proteinas?: number;
+  carboidratos?: number;
+  gorduras?: number;
+  fibras?: number;
+  porcao?: string;
   fornecedor: {
     id: number;
     nome: string;
@@ -192,6 +202,177 @@ const DetalhePrato = () => {
   const toggleFavorito = () => {
     setFavorito(!favorito);
     // Aqui adicionaríamos a lógica para salvar nos favoritos
+  };
+
+  // Adicionar este componente para renderizar a tabela nutricional detalhada
+  const TabelaNutricional = ({ prato }: { prato: Prato }) => {
+    // Se não houver informações nutricionais, retornar mensagem informativa
+    if (
+      !prato.calorias &&
+      !prato.proteinas &&
+      !prato.carboidratos &&
+      !prato.gorduras &&
+      !prato.fibras
+    ) {
+      return (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800/20 text-yellow-800 dark:text-yellow-200 p-4 rounded-lg text-sm">
+          <div className="flex items-center">
+            <FaInfoCircle className="text-yellow-500 mr-2" />
+            <span>
+              As informações nutricionais deste prato ainda não estão
+              disponíveis.
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+            Informações Nutricionais
+          </h3>
+          {prato.porcao && (
+            <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg">
+              Porção: {prato.porcao}
+            </span>
+          )}
+        </div>
+
+        {/* Cards com macro informações */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          {prato.calorias && (
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 flex items-center">
+              <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mr-3">
+                <FaFire className="text-orange-500" />
+              </div>
+              <div>
+                <div className="text-lg font-bold text-gray-800 dark:text-white">
+                  {prato.calorias}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Calorias (kcal)
+                </div>
+              </div>
+            </div>
+          )}
+
+          {prato.proteinas && (
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 flex items-center">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mr-3">
+                <BiDumbbell className="text-blue-500" />
+              </div>
+              <div>
+                <div className="text-lg font-bold text-gray-800 dark:text-white">
+                  {prato.proteinas}g
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Proteínas
+                </div>
+              </div>
+            </div>
+          )}
+
+          {prato.carboidratos && (
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 flex items-center">
+              <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mr-3">
+                <GiSlicedBread className="text-yellow-500" />
+              </div>
+              <div>
+                <div className="text-lg font-bold text-gray-800 dark:text-white">
+                  {prato.carboidratos}g
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Carboidratos
+                </div>
+              </div>
+            </div>
+          )}
+
+          {prato.gorduras && (
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 flex items-center">
+              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mr-3">
+                <IoNutrition className="text-purple-500" />
+              </div>
+              <div>
+                <div className="text-lg font-bold text-gray-800 dark:text-white">
+                  {prato.gorduras}g
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Gorduras
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Tabela nutricional detalhada */}
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <table className="w-full text-sm">
+            <tbody>
+              {prato.calorias && (
+                <tr className="border-b border-gray-100 dark:border-gray-800">
+                  <td className="py-2 text-gray-600 dark:text-gray-400">
+                    Valor energético
+                  </td>
+                  <td className="py-2 font-medium text-gray-800 dark:text-white text-right">
+                    {prato.calorias} kcal
+                  </td>
+                </tr>
+              )}
+              {prato.proteinas && (
+                <tr className="border-b border-gray-100 dark:border-gray-800">
+                  <td className="py-2 text-gray-600 dark:text-gray-400">
+                    Proteínas
+                  </td>
+                  <td className="py-2 font-medium text-gray-800 dark:text-white text-right">
+                    {prato.proteinas}g
+                  </td>
+                </tr>
+              )}
+              {prato.carboidratos && (
+                <tr className="border-b border-gray-100 dark:border-gray-800">
+                  <td className="py-2 text-gray-600 dark:text-gray-400">
+                    Carboidratos totais
+                  </td>
+                  <td className="py-2 font-medium text-gray-800 dark:text-white text-right">
+                    {prato.carboidratos}g
+                  </td>
+                </tr>
+              )}
+              {prato.gorduras && (
+                <tr className="border-b border-gray-100 dark:border-gray-800">
+                  <td className="py-2 text-gray-600 dark:text-gray-400">
+                    Gorduras totais
+                  </td>
+                  <td className="py-2 font-medium text-gray-800 dark:text-white text-right">
+                    {prato.gorduras}g
+                  </td>
+                </tr>
+              )}
+              {prato.fibras && (
+                <tr className="border-b border-gray-100 dark:border-gray-800">
+                  <td className="py-2 text-gray-600 dark:text-gray-400">
+                    Fibras alimentares
+                  </td>
+                  <td className="py-2 font-medium text-gray-800 dark:text-white text-right">
+                    {prato.fibras}g
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+          <p className="flex items-center">
+            <FaInfoCircle className="mr-2 text-blue-500" /> Os valores
+            nutricionais são aproximados e podem variar conforme o preparo.
+          </p>
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -365,142 +546,189 @@ const DetalhePrato = () => {
                   )}
                 </div>
 
-                <div className="mb-6">
-                  <div className="mb-4 border-b border-gray-200 dark:border-gray-700">
-                    <div className="flex -mb-px space-x-6">
+                <div className="mt-8">
+                  <div className="border-b border-gray-200 dark:border-gray-700">
+                    <nav className="-mb-px flex space-x-8 overflow-x-auto">
                       <button
                         onClick={() => setActiveTab("descricao")}
-                        className={`py-2 font-medium border-b-2 transition-colors ${
+                        className={`pb-4 px-1 font-medium text-sm focus:outline-none transition-colors duration-200 ${
                           activeTab === "descricao"
-                            ? "border-green-500 text-green-600 dark:text-green-400"
-                            : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                            ? "text-green-600 dark:text-green-400 border-b-2 border-green-500 dark:border-green-400"
+                            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                         }`}
                       >
                         Descrição
                       </button>
                       <button
-                        onClick={() => setActiveTab("nutricional")}
-                        className={`py-2 font-medium border-b-2 transition-colors ${
-                          activeTab === "nutricional"
-                            ? "border-green-500 text-green-600 dark:text-green-400"
-                            : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                        onClick={() => setActiveTab("nutrientes")}
+                        className={`pb-4 px-1 font-medium text-sm focus:outline-none transition-colors duration-200 ${
+                          activeTab === "nutrientes"
+                            ? "text-green-600 dark:text-green-400 border-b-2 border-green-500 dark:border-green-400"
+                            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                         }`}
                       >
-                        Info. Nutricional
+                        Informações Nutricionais
                       </button>
                       <button
-                        onClick={() => setActiveTab("preparo")}
-                        className={`py-2 font-medium border-b-2 transition-colors ${
-                          activeTab === "preparo"
-                            ? "border-green-500 text-green-600 dark:text-green-400"
-                            : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                        onClick={() => setActiveTab("avaliacoes")}
+                        className={`pb-4 px-1 font-medium text-sm focus:outline-none transition-colors duration-200 ${
+                          activeTab === "avaliacoes"
+                            ? "text-green-600 dark:text-green-400 border-b-2 border-green-500 dark:border-green-400"
+                            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                         }`}
                       >
-                        Preparo
+                        Avaliações ({prato?.totalAvaliacoes || 0})
                       </button>
-                    </div>
+                    </nav>
                   </div>
 
-                  {activeTab === "descricao" && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="text-gray-700 dark:text-gray-300"
-                    >
-                      <p className="leading-relaxed">{prato.descricao}</p>
-                    </motion.div>
-                  )}
-
-                  {activeTab === "nutricional" && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="bg-green-50 dark:bg-green-900/10 rounded-lg p-4"
-                    >
-                      <h3 className="font-medium text-green-800 dark:text-green-400 mb-3 flex items-center">
-                        <FaInfoCircle className="mr-2" />
-                        Informações Nutricionais
-                      </h3>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div className="flex justify-between items-center p-2 border-b border-green-100 dark:border-green-800/30">
-                          <span className="text-gray-600 dark:text-gray-400">
-                            Calorias
-                          </span>
-                          <span className="font-medium text-gray-800 dark:text-white">
-                            320 kcal
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center p-2 border-b border-green-100 dark:border-green-800/30">
-                          <span className="text-gray-600 dark:text-gray-400">
-                            Proteínas
-                          </span>
-                          <span className="font-medium text-gray-800 dark:text-white">
-                            15g
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center p-2 border-b border-green-100 dark:border-green-800/30">
-                          <span className="text-gray-600 dark:text-gray-400">
-                            Carboidratos
-                          </span>
-                          <span className="font-medium text-gray-800 dark:text-white">
-                            42g
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center p-2 border-b border-green-100 dark:border-green-800/30">
-                          <span className="text-gray-600 dark:text-gray-400">
-                            Gorduras
-                          </span>
-                          <span className="font-medium text-gray-800 dark:text-white">
-                            9g
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center p-2 border-b border-green-100 dark:border-green-800/30">
-                          <span className="text-gray-600 dark:text-gray-400">
-                            Fibras
-                          </span>
-                          <span className="font-medium text-gray-800 dark:text-white">
-                            7g
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center p-2 border-b border-green-100 dark:border-green-800/30">
-                          <span className="text-gray-600 dark:text-gray-400">
-                            Sódio
-                          </span>
-                          <span className="font-medium text-gray-800 dark:text-white">
-                            320mg
-                          </span>
-                        </div>
+                  <div className="mt-4">
+                    {/* Conteúdo da aba Descrição */}
+                    {activeTab === "descricao" && (
+                      <div className="prose prose-green dark:prose-invert max-w-none">
+                        <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                          {prato?.descricao}
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
-                        Valores aproximados. Podem variar de acordo com o
-                        preparo.
-                      </p>
-                    </motion.div>
-                  )}
+                    )}
 
-                  {activeTab === "preparo" && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="text-gray-700 dark:text-gray-300"
-                    >
-                      <p className="mb-3">
-                        Este prato é preparado com ingredientes frescos no dia
-                        do pedido.
-                      </p>
-                      <ul className="list-disc pl-5 space-y-1 text-sm">
-                        <li>
-                          Todos os ingredientes são selecionados pela manhã
-                        </li>
-                        <li>Preparo cuidadoso para preservar nutrientes</li>
-                        <li>Embalagem ecológica e segura para entrega</li>
-                        <li>Tempo médio de preparo: 30 minutos</li>
-                      </ul>
-                    </motion.div>
-                  )}
+                    {/* Conteúdo da aba Informações Nutricionais */}
+                    {activeTab === "nutrientes" && prato && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <TabelaNutricional prato={prato} />
+                      </motion.div>
+                    )}
+
+                    {/* Conteúdo da aba Avaliações */}
+                    {activeTab === "avaliacoes" && (
+                      <div className="border-t border-gray-200 p-6">
+                        <h2 className="text-xl font-bold mb-4">Avaliações</h2>
+
+                        {/* Formulário de avaliação para usuários logados como clientes */}
+                        {isAuthenticated && userType === "cliente" && (
+                          <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                            <h3 className="text-lg font-semibold mb-2">
+                              Avalie este prato
+                            </h3>
+
+                            {avaliacaoSucesso && (
+                              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                                {avaliacaoSucesso}
+                              </div>
+                            )}
+
+                            {avaliacaoErro && (
+                              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                {avaliacaoErro}
+                              </div>
+                            )}
+
+                            <form onSubmit={handleSubmitAvaliacao}>
+                              <div className="mb-4">
+                                <label className="block text-gray-700 font-medium mb-2">
+                                  Nota
+                                </label>
+                                <div className="flex">
+                                  {[1, 2, 3, 4, 5].map((estrela) => (
+                                    <div
+                                      key={estrela}
+                                      className="cursor-pointer text-xl"
+                                      onClick={() =>
+                                        setNovaAvaliacao({
+                                          ...novaAvaliacao,
+                                          nota: estrela,
+                                        })
+                                      }
+                                      onMouseEnter={() => setNotaHover(estrela)}
+                                      onMouseLeave={() => setNotaHover(0)}
+                                    >
+                                      {estrela <=
+                                      (notaHover || novaAvaliacao.nota) ? (
+                                        <FaStar className="text-yellow-400" />
+                                      ) : (
+                                        <FaRegStar className="text-yellow-400" />
+                                      )}
+                                    </div>
+                                  ))}
+                                  <span className="ml-2 text-gray-600">
+                                    {novaAvaliacao.nota > 0 &&
+                                      `${novaAvaliacao.nota}/5`}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="mb-4">
+                                <label
+                                  htmlFor="comentario"
+                                  className="block text-gray-700 font-medium mb-2"
+                                >
+                                  Comentário
+                                </label>
+                                <textarea
+                                  id="comentario"
+                                  name="comentario"
+                                  value={novaAvaliacao.comentario}
+                                  onChange={handleInputChange}
+                                  rows={3}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                  placeholder="Compartilhe sua experiência com este prato..."
+                                ></textarea>
+                              </div>
+                              <button
+                                type="submit"
+                                className={`bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition ${
+                                  enviandoAvaliacao
+                                    ? "opacity-70 cursor-not-allowed"
+                                    : ""
+                                }`}
+                                disabled={enviandoAvaliacao}
+                              >
+                                {enviandoAvaliacao
+                                  ? "Enviando..."
+                                  : "Enviar Avaliação"}
+                              </button>
+                            </form>
+                          </div>
+                        )}
+
+                        {prato.avaliacoes.length === 0 ? (
+                          <p className="text-gray-600">
+                            Este prato ainda não possui avaliações.
+                          </p>
+                        ) : (
+                          <div className="space-y-4">
+                            {prato.avaliacoes.map((avaliacao) => (
+                              <div
+                                key={avaliacao.id}
+                                className="border-b border-gray-200 pb-4 last:border-b-0"
+                              >
+                                <div className="flex justify-between">
+                                  <div className="font-semibold">
+                                    {avaliacao.cliente.nome}
+                                  </div>
+                                  <div className="text-gray-500 text-sm">
+                                    {formatarData(avaliacao.createdAt)}
+                                  </div>
+                                </div>
+                                <div className="flex items-center my-1">
+                                  {renderEstrelas(avaliacao.nota)}
+                                  <span className="ml-2 text-gray-600 text-sm">
+                                    {avaliacao.nota}/5
+                                  </span>
+                                </div>
+                                <p className="text-gray-700">
+                                  {avaliacao.comentario}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex space-x-3">
@@ -550,122 +778,6 @@ const DetalhePrato = () => {
               </motion.div>
             </div>
           </motion.div>
-
-          {/* Seção de Avaliações */}
-          <div className="border-t border-gray-200 p-6">
-            <h2 className="text-xl font-bold mb-4">Avaliações</h2>
-
-            {/* Formulário de avaliação para usuários logados como clientes */}
-            {isAuthenticated && userType === "cliente" && (
-              <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                <h3 className="text-lg font-semibold mb-2">
-                  Avalie este prato
-                </h3>
-
-                {avaliacaoSucesso && (
-                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                    {avaliacaoSucesso}
-                  </div>
-                )}
-
-                {avaliacaoErro && (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {avaliacaoErro}
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmitAvaliacao}>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 font-medium mb-2">
-                      Nota
-                    </label>
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((estrela) => (
-                        <div
-                          key={estrela}
-                          className="cursor-pointer text-xl"
-                          onClick={() =>
-                            setNovaAvaliacao({
-                              ...novaAvaliacao,
-                              nota: estrela,
-                            })
-                          }
-                          onMouseEnter={() => setNotaHover(estrela)}
-                          onMouseLeave={() => setNotaHover(0)}
-                        >
-                          {estrela <= (notaHover || novaAvaliacao.nota) ? (
-                            <FaStar className="text-yellow-400" />
-                          ) : (
-                            <FaRegStar className="text-yellow-400" />
-                          )}
-                        </div>
-                      ))}
-                      <span className="ml-2 text-gray-600">
-                        {novaAvaliacao.nota > 0 && `${novaAvaliacao.nota}/5`}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mb-4">
-                    <label
-                      htmlFor="comentario"
-                      className="block text-gray-700 font-medium mb-2"
-                    >
-                      Comentário
-                    </label>
-                    <textarea
-                      id="comentario"
-                      name="comentario"
-                      value={novaAvaliacao.comentario}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="Compartilhe sua experiência com este prato..."
-                    ></textarea>
-                  </div>
-                  <button
-                    type="submit"
-                    className={`bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition ${
-                      enviandoAvaliacao ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
-                    disabled={enviandoAvaliacao}
-                  >
-                    {enviandoAvaliacao ? "Enviando..." : "Enviar Avaliação"}
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {prato.avaliacoes.length === 0 ? (
-              <p className="text-gray-600">
-                Este prato ainda não possui avaliações.
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {prato.avaliacoes.map((avaliacao) => (
-                  <div
-                    key={avaliacao.id}
-                    className="border-b border-gray-200 pb-4 last:border-b-0"
-                  >
-                    <div className="flex justify-between">
-                      <div className="font-semibold">
-                        {avaliacao.cliente.nome}
-                      </div>
-                      <div className="text-gray-500 text-sm">
-                        {formatarData(avaliacao.createdAt)}
-                      </div>
-                    </div>
-                    <div className="flex items-center my-1">
-                      {renderEstrelas(avaliacao.nota)}
-                      <span className="ml-2 text-gray-600 text-sm">
-                        {avaliacao.nota}/5
-                      </span>
-                    </div>
-                    <p className="text-gray-700">{avaliacao.comentario}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </main>
     </div>

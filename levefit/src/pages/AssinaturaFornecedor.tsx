@@ -40,7 +40,7 @@ interface Fatura {
 }
 
 const AssinaturaFornecedor = () => {
-  const { userData, updateUserData, refreshUserData } = useAuth();
+  const { userData, updateUserData, refreshUserData, isRefreshing } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -67,6 +67,7 @@ const AssinaturaFornecedor = () => {
   const [mostrarCancelamentoModal, setMostrarCancelamentoModal] =
     useState(false);
   const [planoSelecionado, setPlanoSelecionado] = useState<string>("mensal");
+  const [dadosCarregados, setDadosCarregados] = useState(false);
 
   // Dados do plano
   const planos: PlanoAssinatura[] = [
@@ -99,10 +100,12 @@ const AssinaturaFornecedor = () => {
 
   useEffect(() => {
     console.log("AssinaturaFornecedor - Página carregada");
-    console.log("AssinaturaFornecedor - Dados do usuário:", userData);
 
     // Verificar o status da assinatura do fornecedor atual e atualizar o contexto
     const verificarAssinatura = async () => {
+      // Evitar recarregar os dados se já foram carregados
+      if (dadosCarregados || isRefreshing) return;
+
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
@@ -111,8 +114,10 @@ const AssinaturaFornecedor = () => {
           token ? "Existe" : "Não existe"
         );
 
-        // Buscar dados atualizados do perfil e atualizar o contexto global
-        await refreshUserData();
+        // Buscar dados atualizados do perfil apenas uma vez
+        if (!isRefreshing && userData?.id) {
+          await refreshUserData();
+        }
 
         // Atualizar o estado local com base nos dados atualizados
         if (userData?.assinaturaAtiva) {
@@ -148,6 +153,9 @@ const AssinaturaFornecedor = () => {
             },
           ]);
         }
+
+        // Marcar que os dados já foram carregados
+        setDadosCarregados(true);
       } catch (error) {
         console.error("Erro ao verificar status da assinatura:", error);
         if (axios.isAxiosError(error)) {
@@ -168,7 +176,7 @@ const AssinaturaFornecedor = () => {
     };
 
     verificarAssinatura();
-  }, [userData?.id, refreshUserData]);
+  }, [userData?.id, refreshUserData, isRefreshing, dadosCarregados]);
 
   const handleDadosCartaoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

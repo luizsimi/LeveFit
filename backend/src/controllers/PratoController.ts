@@ -21,15 +21,21 @@ interface Prato {
   categoria: string;
   disponivel: boolean;
   emPromocao?: boolean;
-  precoOriginal?: number;
-  dataFimPromocao?: Date;
+  precoOriginal?: number | null;
+  dataFimPromocao?: Date | null;
+  calorias?: number | null;
+  proteinas?: number | null;
+  carboidratos?: number | null;
+  gorduras?: number | null;
+  fibras?: number | null;
+  porcao?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
   fornecedor?: {
     id: number;
     nome: string;
     whatsapp: string;
-    logo?: string;
+    logo?: string | null;
   };
   avaliacoes: Avaliacao[];
 }
@@ -46,6 +52,12 @@ export class PratoController {
         emPromocao,
         precoOriginal,
         dataFimPromocao,
+        calorias,
+        proteinas,
+        carboidratos,
+        gorduras,
+        fibras,
+        porcao,
       } = req.body;
       const { userId } = req;
 
@@ -91,6 +103,16 @@ export class PratoController {
         };
       }
 
+      // Processar informações nutricionais (todos opcionais)
+      const dadosNutricionais = {
+        calorias: calorias ? Number(calorias) : null,
+        proteinas: proteinas ? Number(proteinas) : null,
+        carboidratos: carboidratos ? Number(carboidratos) : null,
+        gorduras: gorduras ? Number(gorduras) : null,
+        fibras: fibras ? Number(fibras) : null,
+        porcao: porcao || null,
+      };
+
       // Criar prato (imagem é opcional)
       const prato = await prisma.prato.create({
         data: {
@@ -101,6 +123,7 @@ export class PratoController {
           categoria,
           fornecedorId: userId,
           ...dadosPromocao,
+          ...dadosNutricionais,
         },
       });
 
@@ -341,8 +364,23 @@ export class PratoController {
   async atualizarPrato(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { nome, descricao, preco, imagem, categoria, disponivel } =
-        req.body;
+      const {
+        nome,
+        descricao,
+        preco,
+        imagem,
+        categoria,
+        disponivel,
+        emPromocao,
+        precoOriginal,
+        dataFimPromocao,
+        calorias,
+        proteinas,
+        carboidratos,
+        gorduras,
+        fibras,
+        porcao,
+      } = req.body;
       const { userId } = req;
 
       if (!userId) {
@@ -373,6 +411,37 @@ export class PratoController {
       if (imagem !== undefined) dadosAtualizados.imagem = imagem || null;
       if (categoria) dadosAtualizados.categoria = categoria;
       if (disponivel !== undefined) dadosAtualizados.disponivel = disponivel;
+
+      // Processar campos de promoção
+      if (emPromocao !== undefined) {
+        dadosAtualizados.emPromocao = emPromocao;
+
+        if (emPromocao) {
+          if (precoOriginal)
+            dadosAtualizados.precoOriginal = Number(precoOriginal);
+          dadosAtualizados.dataFimPromocao = dataFimPromocao
+            ? new Date(dataFimPromocao)
+            : null;
+        } else {
+          dadosAtualizados.precoOriginal = null;
+          dadosAtualizados.dataFimPromocao = null;
+        }
+      }
+
+      // Processar informações nutricionais
+      if (calorias !== undefined)
+        dadosAtualizados.calorias = calorias ? Number(calorias) : null;
+      if (proteinas !== undefined)
+        dadosAtualizados.proteinas = proteinas ? Number(proteinas) : null;
+      if (carboidratos !== undefined)
+        dadosAtualizados.carboidratos = carboidratos
+          ? Number(carboidratos)
+          : null;
+      if (gorduras !== undefined)
+        dadosAtualizados.gorduras = gorduras ? Number(gorduras) : null;
+      if (fibras !== undefined)
+        dadosAtualizados.fibras = fibras ? Number(fibras) : null;
+      if (porcao !== undefined) dadosAtualizados.porcao = porcao || null;
 
       const pratoAtualizado = await prisma.prato.update({
         where: { id: Number(id) },

@@ -49,6 +49,12 @@ model Prato {
   emPromocao       Boolean     @default(false)  // indica se o prato está em promoção
   precoOriginal    Float?      // preço antes da promoção
   dataFimPromocao  DateTime?   // data de término da promoção
+  calorias         Int?        // valor calórico em kcal por porção
+  proteinas        Float?      // gramas de proteína por porção
+  carboidratos     Float?      // gramas de carboidratos por porção
+  gorduras         Float?      // gramas de gordura por porção
+  fibras           Float?      // gramas de fibra por porção
+  porcao           String?     // descrição da porção (ex: "300g", "1 unidade")
   fornecedor       Fornecedor  @relation(fields: [fornecedorId], references: [id])
   fornecedorId     Int
   avaliacoes       Avaliacao[]

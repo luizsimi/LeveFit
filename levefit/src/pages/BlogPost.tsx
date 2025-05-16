@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {
@@ -11,74 +10,114 @@ import {
   FaShare,
   FaTags,
   FaExclamationCircle,
+  FaUser,
+  FaClock,
 } from "react-icons/fa";
 
 interface BlogPost {
   id: number;
   titulo: string;
   conteudo: string;
-  imagem?: string;
+  imagem: string;
   categoria: string;
   slug: string;
   autor: string;
-  tags?: string;
+  tags: string;
   publicado: boolean;
   destaque: boolean;
   visualizacoes: number;
   createdAt: string;
-  updatedAt: string;
 }
+
+// Dados estáticos para o blog
+const postsMock: BlogPost[] = [
+  {
+    id: 1,
+    titulo: "10 Dicas para uma Alimentação Saudável no Dia a Dia",
+    conteudo:
+      "A alimentação saudável é a base para uma vida equilibrada e com mais energia. Confira estas 10 dicas práticas que podem ser aplicadas no seu dia a dia:\n\n1. **Priorize alimentos naturais**: Frutas, legumes, verduras, grãos e proteínas magras devem ser a base da sua alimentação.\n\n2. **Hidrate-se adequadamente**: Beba pelo menos 2 litros de água por dia. Uma boa hidratação ajuda em todos os processos do corpo.\n\n3. **Coma mais fibras**: Alimentos ricos em fibras como aveia, quinoa, chia e linhaça ajudam na digestão e dão sensação de saciedade.\n\n4. **Reduza o consumo de açúcar**: O açúcar refinado está presente em muitos alimentos industrializados e seu consumo excessivo está relacionado a diversas doenças.\n\n5. **Modere o sal**: Prefira ervas e especiarias para temperar seus alimentos em vez de excesso de sal.\n\n6. **Faça refeições regulares**: Comer a cada 3-4 horas ajuda a manter o metabolismo ativo e evita o excesso de fome.\n\n7. **Planeje suas refeições**: Ter um cardápio semanal facilita fazer escolhas saudáveis e evita a tentação de pedir delivery.\n\n8. **Coma com calma**: Mastigar devagar ajuda na digestão e dá tempo para o cérebro reconhecer a saciedade.\n\n9. **Evite distrações durante as refeições**: Comer assistindo TV ou usando o celular pode levar ao consumo excessivo de calorias.\n\n10. **Permita-se pequenos prazeres**: Uma alimentação saudável não precisa ser restritiva. Comer algo que gosta ocasionalmente faz parte do equilíbrio.\n\nLembre-se que pequenas mudanças consistentes trazem grandes resultados ao longo do tempo. Comece implementando uma ou duas dicas por vez e vá incorporando as demais gradualmente ao seu estilo de vida.",
+    imagem:
+      "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=2070&auto=format&fit=crop",
+    categoria: "Nutrição",
+    slug: "dicas-alimentacao-saudavel",
+    autor: "Dra. Ana Silva",
+    tags: "alimentação,saúde,bem-estar",
+    publicado: true,
+    destaque: true,
+    visualizacoes: 1520,
+    createdAt: "2025-05-10T14:30:00.000Z",
+  },
+  {
+    id: 2,
+    titulo: "Os Benefícios dos Alimentos Orgânicos",
+    conteudo:
+      "Os alimentos orgânicos têm ganhado cada vez mais espaço nas prateleiras dos supermercados e nas mesas dos consumidores. Mas você sabe realmente quais são seus benefícios?\n\nAlimentos orgânicos são cultivados sem o uso de pesticidas, fertilizantes sintéticos, organismos geneticamente modificados ou hormônios de crescimento. Este método de cultivo traz diversos benefícios tanto para a saúde quanto para o meio ambiente.\n\n**Benefícios para a saúde:**\n\n- **Menor exposição a químicos**: Ao consumir alimentos orgânicos, você reduz significativamente sua exposição a resíduos de pesticidas e outras substâncias químicas.\n\n- **Maior valor nutricional**: Diversos estudos indicam que alimentos orgânicos possuem maior concentração de certos nutrientes, especialmente antioxidantes.\n\n- **Sabor mais autêntico**: Muitas pessoas relatam que frutas e verduras orgânicas têm sabor mais intenso e natural.\n\n- **Sem antibióticos ou hormônios**: Produtos de origem animal orgânicos são livres de antibióticos e hormônios utilizados na produção convencional.\n\n**Benefícios para o meio ambiente:**\n\n- **Preservação da biodiversidade**: O cultivo orgânico promove a diversidade de espécies e preserva o ecossistema local.\n\n- **Proteção dos recursos hídricos**: Sem o uso de pesticidas e fertilizantes químicos, há menor contaminação da água.\n\n- **Solos mais saudáveis**: As práticas de agricultura orgânica melhoram a qualidade do solo a longo prazo.\n\n- **Menor impacto climático**: Estudos mostram que as emissões de carbono são menores em sistemas de produção orgânica.\n\nAo optar por alimentos orgânicos, você está não apenas investindo na sua saúde, mas também apoiando um sistema de produção que respeita o meio ambiente e promove a sustentabilidade. Comece incorporando alguns itens orgânicos em sua dieta e observe os benefícios ao longo do tempo.",
+    imagem:
+      "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=1974&auto=format&fit=crop",
+    categoria: "Alimentos",
+    slug: "beneficios-alimentos-organicos",
+    autor: "Carlos Mendes",
+    tags: "orgânicos,saúde,alimentos",
+    publicado: true,
+    destaque: false,
+    visualizacoes: 980,
+    createdAt: "2025-05-07T10:15:00.000Z",
+  },
+  {
+    id: 3,
+    titulo: "Proteínas Vegetais: O Guia Completo",
+    conteudo:
+      "As proteínas são essenciais para o funcionamento adequado do nosso organismo, mas não precisamos depender exclusivamente de fontes animais para obtê-las. Este guia completo sobre proteínas vegetais irá mostrar como manter uma alimentação equilibrada e nutritiva usando apenas fontes vegetais.\n\n**Por que proteínas vegetais?**\n\nAlém de serem excelentes fontes de proteínas, os alimentos vegetais geralmente contêm menos gordura saturada, mais fibras e diversos nutrientes essenciais. Eles também têm menor impacto ambiental quando comparados à produção de proteínas animais.\n\n**Principais fontes de proteínas vegetais:**\n\n1. **Leguminosas**:\n   - Feijões (preto, carioca, branco): 15g por xícara (cozidos)\n   - Lentilhas: 18g por xícara (cozidas)\n   - Grão-de-bico: 14g por xícara (cozido)\n   - Ervilhas: 8g por xícara (cozidas)\n\n2. **Soja e derivados**:\n   - Tofu: 10g por 100g\n   - Tempeh: 19g por 100g\n   - Edamame: 11g por xícara\n   - Leite de soja: 7g por xícara\n\n3. **Cereais e grãos**:\n   - Quinoa: 8g por xícara (cozida)\n   - Aveia: 6g por xícara (cozida)\n   - Arroz integral: 5g por xícara (cozido)\n\n4. **Sementes e oleaginosas**:\n   - Chia: 5g por 2 colheres de sopa\n   - Linhaça: 3g por 2 colheres de sopa\n   - Amêndoas: 6g por 1/4 xícara\n   - Castanha-do-pará: 4g por 6 unidades\n\n**Como garantir uma ingestão adequada de proteínas:**\n\n- **Combine diferentes fontes**: A combinação de leguminosas com cereais (como arroz com feijão) forma uma proteína completa com todos os aminoácidos essenciais.\n\n- **Distribua ao longo do dia**: Inclua fontes de proteína vegetal em todas as refeições.\n\n- **Diversifique as fontes**: Não dependa de apenas um ou dois alimentos; explore a variedade disponível.\n\n**Receitas ricas em proteínas vegetais:**\n\n- Bowl de quinoa com grão-de-bico, legumes e molho tahine\n- Curry de lentilhas com leite de coco\n- Smoothie de frutas com leite de amêndoas e pasta de amendoim\n\nCom planejamento adequado, é perfeitamente possível obter toda a proteína necessária de fontes vegetais, beneficiando sua saúde e o planeta.",
+    imagem:
+      "https://images.unsplash.com/photo-1540914124281-342587941389?q=80&w=2074&auto=format&fit=crop",
+    categoria: "Nutrição",
+    slug: "proteinas-vegetais",
+    autor: "Dra. Paula Costa",
+    tags: "proteínas,vegetariano,nutrição",
+    publicado: true,
+    destaque: false,
+    visualizacoes: 1240,
+    createdAt: "2025-05-03T09:45:00.000Z",
+  },
+  {
+    id: 4,
+    titulo: "Jejum Intermitente: Prós e Contras",
+    conteudo:
+      "O jejum intermitente se tornou uma das abordagens alimentares mais populares nos últimos anos. Mas será que ele é adequado para todos? Vamos analisar os prós e contras desta prática.\n\n**O que é o jejum intermitente?**\n\nO jejum intermitente não é uma dieta, mas sim um padrão alimentar que alterna entre períodos de alimentação e jejum. Os métodos mais comuns incluem:\n\n- **16/8**: 16 horas de jejum e 8 horas de alimentação\n- **5:2**: Alimentação normal por 5 dias e restrição calórica (500-600 calorias) em 2 dias da semana\n- **Eat-Stop-Eat**: Jejum de 24 horas uma ou duas vezes por semana\n\n**Prós do jejum intermitente:**\n\n1. **Perda de peso**: Pode ajudar na redução de calorias consumidas e aumentar hormônios que facilitam a queima de gordura.\n\n2. **Melhora da sensibilidade à insulina**: Estudos mostram que pode reduzir os níveis de insulina em jejum e melhorar a resistência à insulina.\n\n3. **Autofagia**: O jejum promove o processo de autofagia, onde as células se livram de componentes danificados.\n\n4. **Redução da inflamação**: Alguns estudos sugerem que o jejum intermitente pode reduzir marcadores inflamatórios.\n\n5. **Simplificação do dia alimentar**: Menos refeições significa menos tempo preparando comida e pensando sobre alimentação.\n\n**Contras do jejum intermitente:**\n\n1. **Não é para todos**: Pessoas com histórico de transtornos alimentares, diabetes tipo 1, gestantes, lactantes e crianças não devem praticar jejum intermitente.\n\n2. **Fome e irritabilidade**: Especialmente no início, muitas pessoas relatam fome intensa, irritabilidade e dificuldade de concentração.\n\n3. **Potencial perda muscular**: Sem uma ingestão adequada de proteínas e exercícios de resistência, pode haver perda de massa muscular.\n\n4. **Impacto social**: Pode dificultar eventos sociais que envolvem alimentação fora dos horários estabelecidos.\n\n5. **Efeitos hormonais**: Algumas mulheres relatam alterações no ciclo menstrual com jejuns prolongados.\n\n**Considerações finais:**\n\nO jejum intermitente pode ser benéfico para muitas pessoas, mas não é uma solução milagrosa nem adequada para todos. Como qualquer mudança significativa na alimentação, o ideal é consultar um profissional de saúde antes de iniciar esta prática.\n\nLembre-se que a qualidade dos alimentos que você consome durante o período de alimentação continua sendo fundamental para sua saúde, independentemente do padrão de jejum escolhido.",
+    imagem:
+      "https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&w=2070&auto=format&fit=crop",
+    categoria: "Dietas",
+    slug: "jejum-intermitente",
+    autor: "Dr. Roberto Alves",
+    tags: "jejum,dieta,saúde",
+    publicado: true,
+    destaque: false,
+    visualizacoes: 2150,
+    createdAt: "2025-04-28T16:20:00.000Z",
+  },
+];
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [postsRelacionados, setPostsRelacionados] = useState<BlogPost[]>([]);
 
-  // Buscar post pelo slug
+  // Buscar post pelo slug (simulado com dados estáticos)
   useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`http://localhost:3333/blog/${slug}`);
-        setPost(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Erro ao buscar post:", error);
-        setError("Não foi possível carregar o artigo.");
-        setLoading(false);
-      }
-    };
+    // Encontrar o post com o slug correspondente
+    const foundPost = postsMock.find((p) => p.slug === slug) || null;
+    setPost(foundPost);
 
-    fetchPost();
-  }, [slug]);
-
-  // Buscar posts relacionados
-  useEffect(() => {
-    const fetchPostsRelacionados = async () => {
-      if (!post) return;
-
-      try {
-        const response = await axios.get(
-          `http://localhost:3333/blog?categoria=${post.categoria}&limit=3`
-        );
-
-        // Filtrar o post atual dos resultados
-        const postsRelacionadosFiltrados = response.data.posts
-          .filter((p: BlogPost) => p.id !== post.id)
-          .slice(0, 3);
-
-        setPostsRelacionados(postsRelacionadosFiltrados);
-      } catch (error) {
-        console.error("Erro ao buscar posts relacionados:", error);
-      }
-    };
-
-    if (post) {
-      fetchPostsRelacionados();
+    // Se encontrou o post, buscar posts relacionados
+    if (foundPost) {
+      const related = postsMock
+        .filter(
+          (p) => p.categoria === foundPost.categoria && p.id !== foundPost.id
+        )
+        .slice(0, 3);
+      setPostsRelacionados(related);
     }
-  }, [post]);
+  }, [slug]);
 
   // Função para formatar a data
   const formatarData = (data: string) => {
@@ -106,33 +145,7 @@ const BlogPost = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <Navbar />
-        <main className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="h-80 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse mb-8"></div>
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4 w-3/4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2 w-1/2"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-6 w-1/3"></div>
-            <div className="space-y-3">
-              {[...Array(10)].map((_, index) => (
-                <div
-                  key={index}
-                  className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
-                  style={{ width: `${Math.random() * 40 + 60}%` }}
-                ></div>
-              ))}
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (error || !post) {
+  if (!post) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
         <Navbar />
@@ -142,8 +155,7 @@ const BlogPost = () => {
               <FaExclamationCircle className="text-5xl mb-4" />
               <h2 className="text-2xl font-bold mb-2">Artigo não encontrado</h2>
               <p className="mb-6">
-                {error ||
-                  "O artigo solicitado não existe ou não está disponível."}
+                O artigo solicitado não existe ou não está disponível.
               </p>
               <Link
                 to="/blog"
@@ -247,51 +259,60 @@ const BlogPost = () => {
           <div className="prose prose-lg dark:prose-invert prose-green max-w-none mb-10">
             {/* Renderizar parágrafos do conteúdo */}
             {post.conteudo.split("\n").map((paragrafo, index) => (
-              <p key={index}>{paragrafo}</p>
+              <p
+                key={index}
+                dangerouslySetInnerHTML={{
+                  __html: paragrafo.replace(
+                    /\*\*(.*?)\*\*/g,
+                    "<strong>$1</strong>"
+                  ),
+                }}
+              />
             ))}
           </div>
 
-          {/* Tags e compartilhar */}
-          <div className="border-t border-b border-gray-200 dark:border-gray-700 py-6 flex flex-wrap justify-between items-center">
-            {post.tags && (
-              <div className="flex items-start mb-4 sm:mb-0">
-                <FaTags className="text-gray-400 dark:text-gray-500 mr-2 mt-1" />
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.split(",").map((tag) => (
-                    <span
-                      key={tag.trim()}
-                      className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm"
-                    >
-                      {tag.trim()}
-                    </span>
-                  ))}
-                </div>
+          {/* Tags */}
+          {post.tags && (
+            <div className="border-t border-b border-gray-200 dark:border-gray-700 py-4 mb-8">
+              <div className="flex items-center flex-wrap gap-2">
+                <FaTags className="text-gray-500 dark:text-gray-400 mr-2" />
+                {post.tags.split(",").map((tag) => (
+                  <span
+                    key={tag}
+                    className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm"
+                  >
+                    {tag.trim()}
+                  </span>
+                ))}
               </div>
-            )}
+            </div>
+          )}
+
+          {/* Botões de compartilhamento */}
+          <div className="flex justify-center mb-16">
             <button
               onClick={compartilhar}
-              className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg flex items-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
             >
               <FaShare className="mr-2" />
-              Compartilhar
+              Compartilhar artigo
             </button>
           </div>
 
-          {/* Posts relacionados */}
+          {/* Artigos relacionados */}
           {postsRelacionados.length > 0 && (
-            <div className="mt-10">
-              <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-white flex items-center">
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-12 mb-8">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
                 <FaLeaf className="mr-2 text-green-500" />
                 Artigos Relacionados
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              </h3>
+              <div className="grid md:grid-cols-3 gap-6">
                 {postsRelacionados.map((postRelacionado) => (
-                  <Link
+                  <div
                     key={postRelacionado.id}
-                    to={`/blog/${postRelacionado.slug}`}
-                    className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1"
+                    className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow transition-shadow hover:shadow-lg"
                   >
-                    <div className="h-36 overflow-hidden bg-gray-200 dark:bg-gray-700">
+                    <div className="h-40 bg-gray-200 dark:bg-gray-700 relative">
                       {postRelacionado.imagem ? (
                         <img
                           src={postRelacionado.imagem}
@@ -299,20 +320,41 @@ const BlogPost = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-green-100 dark:bg-green-900/20">
-                          <FaLeaf className="text-3xl text-green-500" />
+                        <div className="w-full h-full flex items-center justify-center">
+                          <FaLeaf className="text-4xl text-gray-400" />
                         </div>
                       )}
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-gray-800 dark:text-white mb-2 line-clamp-2">
+                      <h4 className="font-bold text-gray-800 dark:text-white mb-2 line-clamp-2">
                         {postRelacionado.titulo}
-                      </h3>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {formatarData(postRelacionado.createdAt)}
+                      </h4>
+                      <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
+                        <div className="flex items-center">
+                          <FaUser className="mr-1" />
+                          <span>{postRelacionado.autor.split(" ")[0]}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <FaClock className="mr-1" />
+                          <span>
+                            {new Date(
+                              postRelacionado.createdAt
+                            ).toLocaleDateString("pt-BR", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "2-digit",
+                            })}
+                          </span>
+                        </div>
                       </div>
+                      <Link
+                        to={`/blog/${postRelacionado.slug}`}
+                        className="block text-center w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-green-600 dark:text-green-400 py-2 rounded font-medium transition-colors"
+                      >
+                        Ler artigo
+                      </Link>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             </div>

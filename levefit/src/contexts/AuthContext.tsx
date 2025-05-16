@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import axios from "axios";
 
 type UserType = "cliente" | "fornecedor" | null;
@@ -19,6 +25,7 @@ interface AuthContextType {
   logout: () => void;
   updateUserData: (data: Partial<UserData>) => void;
   refreshUserData: () => Promise<void>;
+  isRefreshing: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,6 +38,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userType, setUserType] = useState<UserType>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const refreshingRef = useRef<boolean>(false);
 
   useEffect(() => {
     // Verificar se há token no localStorage ao inicializar
@@ -131,12 +140,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Buscar dados atualizados do perfil a partir da API
   const refreshUserData = async () => {
-    if (!isAuthenticated || !userType) return;
-
-    console.log("DEBUG - AuthContext - Atualizando dados do usuário da API");
-    const token = localStorage.getItem("token");
+    if (!isAuthenticated || !userType || refreshingRef.current) return;
 
     try {
+      // Prevenir chamadas múltiplas simultâneas
+      refreshingRef.current = true;
+      setIsRefreshing(true);
+
+      console.log("DEBUG - AuthContext - Atualizando dados do usuário da API");
+      const token = localStorage.getItem("token");
+
       const endpoint =
         userType === "fornecedor"
           ? "http://localhost:3333/fornecedores/perfil"
@@ -158,6 +171,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return updatedUserData;
     } catch (error) {
       console.error("DEBUG - AuthContext - Erro ao atualizar dados:", error);
+    } finally {
+      setIsRefreshing(false);
+      // Adicionar um pequeno delay antes de permitir nova atualização
+      setTimeout(() => {
+        refreshingRef.current = false;
+      }, 2000);
     }
   };
 
@@ -171,6 +190,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logout,
         updateUserData,
         refreshUserData,
+        isRefreshing,
       }}
     >
       {children}

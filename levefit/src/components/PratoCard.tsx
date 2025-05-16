@@ -1,5 +1,14 @@
 import { Link } from "react-router-dom";
-import { FaStar, FaRegStar, FaWhatsapp, FaArrowRight } from "react-icons/fa";
+import {
+  FaStar,
+  FaRegStar,
+  FaWhatsapp,
+  FaArrowRight,
+  FaFire,
+} from "react-icons/fa";
+import { BiDumbbell } from "react-icons/bi";
+import { IoNutrition } from "react-icons/io5";
+import { GiSlicedBread } from "react-icons/gi";
 
 interface PratoProps {
   id: number;
@@ -16,6 +25,12 @@ interface PratoProps {
     whatsapp: string;
     logo?: string;
   };
+  calorias?: number;
+  proteinas?: number;
+  carboidratos?: number;
+  gorduras?: number;
+  fibras?: number;
+  porcao?: string;
 }
 
 // Array de URLs de imagens padrão para diferentes categorias de pratos
@@ -59,6 +74,11 @@ const PratoCard = ({
   mediaAvaliacao,
   totalAvaliacoes,
   fornecedor,
+  calorias,
+  proteinas,
+  carboidratos,
+  gorduras,
+  porcao,
 }: PratoProps) => {
   // Limitar a descrição a um número máximo de caracteres
   const descricaoResumida =
@@ -118,6 +138,81 @@ const PratoCard = ({
     );
   };
 
+  // Renderizar informações nutricionais se disponíveis
+  const renderInformacoesNutricionais = () => {
+    // Se não houver nenhuma informação nutricional, não renderizar a seção
+    if (!calorias && !proteinas && !carboidratos && !gorduras) {
+      return null;
+    }
+
+    return (
+      <div className="mt-3 mb-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+            Informações Nutricionais {porcao && `(${porcao})`}
+          </span>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {calorias && (
+            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded-lg p-1">
+              <div className="flex items-center mb-1">
+                <FaFire className="text-orange-500 mr-1 text-xs" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  {calorias}
+                </span>
+              </div>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                kcal
+              </span>
+            </div>
+          )}
+
+          {proteinas && (
+            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded-lg p-1">
+              <div className="flex items-center mb-1">
+                <BiDumbbell className="text-blue-500 mr-1 text-xs" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  {proteinas}g
+                </span>
+              </div>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                proteína
+              </span>
+            </div>
+          )}
+
+          {carboidratos && (
+            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded-lg p-1">
+              <div className="flex items-center mb-1">
+                <GiSlicedBread className="text-yellow-500 mr-1 text-xs" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  {carboidratos}g
+                </span>
+              </div>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                carbs
+              </span>
+            </div>
+          )}
+
+          {gorduras && (
+            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded-lg p-1">
+              <div className="flex items-center mb-1">
+                <IoNutrition className="text-purple-500 mr-1 text-xs" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  {gorduras}g
+                </span>
+              </div>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                gorduras
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 dark:shadow-gray-900/30">
       <div className="relative h-52 bg-gray-200 dark:bg-gray-700 overflow-hidden group">
@@ -158,6 +253,8 @@ const PratoCard = ({
         <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm leading-relaxed mb-4">
           {descricaoResumida}
         </p>
+
+        {renderInformacoesNutricionais()}
 
         <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center text-sm text-gray-700 dark:text-gray-300 mb-4">
           <div className="flex items-center">

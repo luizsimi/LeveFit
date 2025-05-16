@@ -32,6 +32,12 @@ interface PratoFormData {
   emPromocao: boolean;
   precoOriginal?: number;
   dataFimPromocao?: string;
+  calorias?: number | null;
+  proteinas?: number | null;
+  carboidratos?: number | null;
+  gorduras?: number | null;
+  fibras?: number | null;
+  porcao?: string | null;
 }
 
 interface ErrorResponse {
@@ -63,6 +69,42 @@ const pratoSchema = yup
         otherwise: (schema) => schema.optional(),
       }),
     dataFimPromocao: yup.string().optional(),
+    calorias: yup
+      .number()
+      .transform((value) => (isNaN(value) || value === 0 ? null : value))
+      .nullable()
+      .typeError("Calorias devem ser um número")
+      .min(0, "Calorias não podem ser negativas")
+      .optional(),
+    proteinas: yup
+      .number()
+      .transform((value) => (isNaN(value) || value === 0 ? null : value))
+      .nullable()
+      .typeError("Proteínas devem ser um número")
+      .min(0, "Proteínas não podem ser negativas")
+      .optional(),
+    carboidratos: yup
+      .number()
+      .transform((value) => (isNaN(value) || value === 0 ? null : value))
+      .nullable()
+      .typeError("Carboidratos devem ser um número")
+      .min(0, "Carboidratos não podem ser negativas")
+      .optional(),
+    gorduras: yup
+      .number()
+      .transform((value) => (isNaN(value) || value === 0 ? null : value))
+      .nullable()
+      .typeError("Gorduras devem ser um número")
+      .min(0, "Gorduras não podem ser negativas")
+      .optional(),
+    fibras: yup
+      .number()
+      .transform((value) => (isNaN(value) || value === 0 ? null : value))
+      .nullable()
+      .typeError("Fibras devem ser um número")
+      .min(0, "Fibras não podem ser negativas")
+      .optional(),
+    porcao: yup.string().nullable().optional(),
   })
   .required();
 
@@ -91,6 +133,7 @@ const FormularioPrato = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [exibirInfoNutricional, setExibirInfoNutricional] = useState(true);
   const editando = !!id;
 
   const {
@@ -112,6 +155,12 @@ const FormularioPrato = () => {
       emPromocao: false,
       precoOriginal: undefined,
       dataFimPromocao: undefined,
+      calorias: null,
+      proteinas: null,
+      carboidratos: null,
+      gorduras: null,
+      fibras: null,
+      porcao: null,
     },
     mode: "onChange",
   });
@@ -150,11 +199,29 @@ const FormularioPrato = () => {
                 .toISOString()
                 .split("T")[0]
             : undefined,
+          calorias: response.data.calorias || null,
+          proteinas: response.data.proteinas || null,
+          carboidratos: response.data.carboidratos || null,
+          gorduras: response.data.gorduras || null,
+          fibras: response.data.fibras || null,
+          porcao: response.data.porcao || null,
         });
 
         // Se houver imagem, definir o preview
         if (response.data.imagem) {
           setImagePreview(response.data.imagem);
+        }
+
+        // Se houver informações nutricionais, exibir a seção
+        if (
+          response.data.calorias ||
+          response.data.proteinas ||
+          response.data.carboidratos ||
+          response.data.gorduras ||
+          response.data.fibras ||
+          response.data.porcao
+        ) {
+          setExibirInfoNutricional(true);
         }
 
         setBuscandoPrato(false);
@@ -709,6 +776,225 @@ const FormularioPrato = () => {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Seção de Informações Nutricionais */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                    <FaInfoCircle className="mr-2 text-green-600 dark:text-green-400" />
+                    Informações Nutricionais
+                  </h3>
+                </div>
+
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800/50 mb-4">
+                  <div className="flex items-center mb-3">
+                    <div className="bg-blue-100 dark:bg-blue-800/50 rounded-full p-2 mr-3">
+                      <FaInfoCircle className="text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <p className="text-blue-800 dark:text-blue-300 font-medium">
+                      Pratos com informações nutricionais detalhadas são
+                      preferidos por 78% dos clientes preocupados com saúde e
+                      bem-estar
+                    </p>
+                  </div>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 ml-11">
+                    Adicionar estas informações aumenta a visibilidade e as
+                    chances de venda do seu prato na plataforma.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setExibirInfoNutricional(!exibirInfoNutricional)
+                  }
+                  className="flex items-center bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-4 py-3 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/40 transition-colors w-full justify-center font-medium border border-green-200 dark:border-green-800/50 shadow-sm"
+                >
+                  {exibirInfoNutricional ? (
+                    <FaTimes className="mr-2" />
+                  ) : (
+                    <FaInfoCircle className="mr-2 text-lg" />
+                  )}
+                  {exibirInfoNutricional ? "Ocultar" : "Mostrar"} informações
+                  nutricionais{" "}
+                  {!exibirInfoNutricional && "(calorias, proteínas, etc.)"}
+                </button>
+
+                {!exibirInfoNutricional && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
+                    Clique no botão acima para adicionar informações
+                    nutricionais detalhadas do seu prato
+                  </p>
+                )}
+
+                {exibirInfoNutricional && (
+                  <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label
+                          htmlFor="calorias"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        >
+                          Calorias (kcal)
+                        </label>
+                        <input
+                          type="number"
+                          id="calorias"
+                          min="0"
+                          {...register("calorias")}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 ${
+                            errors.calorias
+                              ? "border-red-300 focus:border-red-400 focus:ring-red-200 dark:border-red-700 dark:focus:ring-red-800"
+                              : "border-gray-300 focus:border-green-400 focus:ring-green-200 dark:border-gray-600 dark:focus:ring-green-700 dark:bg-gray-700 dark:text-white"
+                          }`}
+                        />
+                        {errors.calorias && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-500">
+                            {errors.calorias.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="porcao"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        >
+                          Porção (ex: "100g", "1 unidade")
+                        </label>
+                        <input
+                          type="text"
+                          id="porcao"
+                          {...register("porcao")}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 ${
+                            errors.porcao
+                              ? "border-red-300 focus:border-red-400 focus:ring-red-200 dark:border-red-700 dark:focus:ring-red-800"
+                              : "border-gray-300 focus:border-green-400 focus:ring-green-200 dark:border-gray-600 dark:focus:ring-green-700 dark:bg-gray-700 dark:text-white"
+                          }`}
+                          placeholder="Ex: 300g"
+                        />
+                        {errors.porcao && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-500">
+                            {errors.porcao.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label
+                          htmlFor="proteinas"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        >
+                          Proteínas (g)
+                        </label>
+                        <input
+                          type="number"
+                          id="proteinas"
+                          min="0"
+                          step="0.1"
+                          {...register("proteinas")}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 ${
+                            errors.proteinas
+                              ? "border-red-300 focus:border-red-400 focus:ring-red-200 dark:border-red-700 dark:focus:ring-red-800"
+                              : "border-gray-300 focus:border-green-400 focus:ring-green-200 dark:border-gray-600 dark:focus:ring-green-700 dark:bg-gray-700 dark:text-white"
+                          }`}
+                        />
+                        {errors.proteinas && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-500">
+                            {errors.proteinas.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="carboidratos"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        >
+                          Carboidratos (g)
+                        </label>
+                        <input
+                          type="number"
+                          id="carboidratos"
+                          min="0"
+                          step="0.1"
+                          {...register("carboidratos")}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 ${
+                            errors.carboidratos
+                              ? "border-red-300 focus:border-red-400 focus:ring-red-200 dark:border-red-700 dark:focus:ring-red-800"
+                              : "border-gray-300 focus:border-green-400 focus:ring-green-200 dark:border-gray-600 dark:focus:ring-green-700 dark:bg-gray-700 dark:text-white"
+                          }`}
+                        />
+                        {errors.carboidratos && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-500">
+                            {errors.carboidratos.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="gorduras"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        >
+                          Gorduras (g)
+                        </label>
+                        <input
+                          type="number"
+                          id="gorduras"
+                          min="0"
+                          step="0.1"
+                          {...register("gorduras")}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 ${
+                            errors.gorduras
+                              ? "border-red-300 focus:border-red-400 focus:ring-red-200 dark:border-red-700 dark:focus:ring-red-800"
+                              : "border-gray-300 focus:border-green-400 focus:ring-green-200 dark:border-gray-600 dark:focus:ring-green-700 dark:bg-gray-700 dark:text-white"
+                          }`}
+                        />
+                        {errors.gorduras && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-500">
+                            {errors.gorduras.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="fibras"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        >
+                          Fibras (g)
+                        </label>
+                        <input
+                          type="number"
+                          id="fibras"
+                          min="0"
+                          step="0.1"
+                          {...register("fibras")}
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 ${
+                            errors.fibras
+                              ? "border-red-300 focus:border-red-400 focus:ring-red-200 dark:border-red-700 dark:focus:ring-red-800"
+                              : "border-gray-300 focus:border-green-400 focus:ring-green-200 dark:border-gray-600 dark:focus:ring-green-700 dark:bg-gray-700 dark:text-white"
+                          }`}
+                        />
+                        {errors.fibras && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-500">
+                            {errors.fibras.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <p className="mt-3 text-xs text-gray-500 dark:text-gray-400 italic">
+                      <FaInfoCircle className="inline-block mr-1" />
+                      Fornecer informações nutricionais é opcional, mas
+                      altamente recomendado para pratos fitness.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end space-x-4">
