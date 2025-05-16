@@ -11,6 +11,7 @@ import {
   FaStar,
   FaArrowLeft,
   FaHeart,
+  FaWhatsapp,
 } from "react-icons/fa";
 import { GiChickenOven, GiCupcake } from "react-icons/gi";
 import Navbar from "../components/Navbar";
@@ -234,7 +235,7 @@ const Categorias = () => {
 
         {!categoriaAtiva ? (
           // Exibir todas as categorias
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {categorias.map((categoria, index) => {
               const iconeInfo = categoriasIcones[categoria] || {
                 icon: <FaUtensils className="text-3xl" />,
@@ -250,25 +251,42 @@ const Categorias = () => {
               return (
                 <div
                   key={index}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg dark:shadow-gray-900/30 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer animate-fadeIn"
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl dark:shadow-gray-900/30 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer animate-fadeIn border border-gray-100 dark:border-gray-700 group"
                   style={{ animationDelay: `${index * 50}ms` }}
                   onClick={() => handleCategoriaClick(categoria)}
                 >
                   <div
-                    className={`p-8 flex flex-col items-center ${iconeInfo.cor} ${iconeInfo.bgDark} ${iconeInfo.textDark}`}
+                    className={`p-8 flex flex-col items-center justify-center h-52 relative overflow-hidden ${iconeInfo.cor} ${iconeInfo.bgDark} ${iconeInfo.textDark}`}
                   >
-                    {iconeInfo.icon}
-                    <h3 className="text-xl font-bold mt-4">{categoria}</h3>
+                    <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 opacity-50"></div>
+                    <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-black/5 opacity-50"></div>
+
+                    <div className="relative z-10 transform transition-transform duration-300 group-hover:scale-110">
+                      <div className="w-20 h-20 rounded-full flex items-center justify-center bg-white dark:bg-gray-700 shadow-md mb-4">
+                        {iconeInfo.icon}
+                      </div>
+                      <h3 className="text-2xl font-bold mt-2 text-center">
+                        {categoria}
+                      </h3>
+                    </div>
                   </div>
-                  <div className="p-4 bg-white dark:bg-gray-800">
-                    <p className="text-gray-600 dark:text-gray-400 text-center">
-                      {pratosNaCategoria}{" "}
-                      {pratosNaCategoria === 1
-                        ? "prato disponível"
-                        : "pratos disponíveis"}
-                    </p>
-                    <button className="w-full mt-4 py-2.5 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white rounded-lg hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5">
+
+                  <div className="p-6 bg-white dark:bg-gray-800">
+                    <div className="flex justify-between items-center mb-4">
+                      <p className="text-gray-600 dark:text-gray-400 font-medium flex items-center">
+                        <FaUtensils className="mr-2 text-green-500 dark:text-green-400" />
+                        <span>
+                          {pratosNaCategoria}{" "}
+                          {pratosNaCategoria === 1
+                            ? "prato disponível"
+                            : "pratos disponíveis"}
+                        </span>
+                      </p>
+                    </div>
+
+                    <button className="w-full py-3 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 transform font-medium flex items-center justify-center">
                       Explorar Pratos
+                      <FaArrowLeft className="ml-2 transform rotate-180" />
                     </button>
                   </div>
                 </div>
@@ -309,74 +327,108 @@ const Categorias = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {pratosFiltrados.map((prato, index) => (
                   <div
                     key={prato.id}
-                    className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg dark:shadow-gray-900/30 overflow-hidden transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn"
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl dark:shadow-gray-900/30 overflow-hidden transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn border border-gray-100 dark:border-gray-700 group"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className="relative h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                    <div className="relative h-56 bg-gray-200 dark:bg-gray-700 overflow-hidden">
                       {prato.imagem ? (
                         <img
                           src={prato.imagem}
                           alt={prato.nome}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                       ) : (
-                        <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-gray-700">
+                        <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-gray-700 transition-transform duration-700 group-hover:scale-110">
                           <FaUtensils className="text-gray-400 dark:text-gray-500 text-4xl" />
                         </div>
                       )}
-                      <div className="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide shadow-md">
                         {prato.categoria}
                       </div>
                       <button
-                        className="absolute top-3 left-3 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-red-500 hover:bg-white hover:text-red-600 transition-colors"
+                        className="absolute top-3 left-3 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-red-500 hover:bg-white hover:text-red-600 transition-colors shadow-md"
                         title="Adicionar aos favoritos"
                       >
                         <FaHeart />
                       </button>
+                      <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                        <span className="font-bold text-white text-xl shadow-sm">
+                          R$ {formatarPreco(prato.preco)}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-4">
+                    <div className="p-6">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight leading-tight">
                           {prato.nome}
                         </h3>
-                        <span className="font-bold text-green-600 dark:text-green-400">
+                        <span className="font-bold text-green-600 dark:text-green-400 text-lg">
                           R$ {formatarPreco(prato.preco)}
                         </span>
                       </div>
 
-                      <div className="mb-2 flex items-center">
+                      <div className="mb-3 flex items-center">
                         {renderEstrelas(prato.mediaAvaliacao)}
-                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+                        <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
                           ({prato.totalAvaliacoes})
                         </span>
                       </div>
 
-                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
-                        {prato.descricao}
+                      <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm">
+                        {prato.descricao.length > 100
+                          ? `${prato.descricao.substring(0, 100)}...`
+                          : prato.descricao}
                       </p>
 
-                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-2 mb-4">
-                        {prato.fornecedor.logo ? (
-                          <img
-                            src={prato.fornecedor.logo}
-                            alt={prato.fornecedor.nome}
-                            className="w-6 h-6 rounded-full mr-2"
-                          />
-                        ) : null}
-                        <span>{prato.fornecedor.nome}</span>
-                      </div>
+                      <div className="border-t border-gray-100 dark:border-gray-700 pt-4 mt-auto">
+                        <div className="flex items-center mb-3">
+                          <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full overflow-hidden mr-2 flex-shrink-0">
+                            {prato.fornecedor.logo ? (
+                              <img
+                                src={prato.fornecedor.logo}
+                                alt={prato.fornecedor.nome}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-green-600 text-white font-bold">
+                                {prato.fornecedor.nome.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {prato.fornecedor.nome}
+                          </span>
+                        </div>
 
-                      <Link
-                        to={`/pratos/${prato.id}`}
-                        className="w-full block text-center py-2 font-medium bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white rounded-lg hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
-                      >
-                        Ver Detalhes
-                      </Link>
+                        <div className="flex space-x-2">
+                          <Link
+                            to={`/pratos/${prato.id}`}
+                            className="flex-1 bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 border border-green-500 dark:border-green-500 font-medium text-sm py-2.5 rounded-lg text-center hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-300 flex items-center justify-center"
+                          >
+                            Detalhes{" "}
+                            <FaArrowLeft className="ml-2 transform rotate-180" />
+                          </Link>
+                          <a
+                            href={`https://wa.me/${prato.fornecedor.whatsapp.replace(
+                              /\D/g,
+                              ""
+                            )}?text=${encodeURIComponent(
+                              `Olá, gostaria de encomendar o prato "${prato.nome}"`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium text-sm py-2.5 rounded-lg text-center transition-colors duration-300 flex items-center justify-center shadow-md hover:shadow-lg"
+                          >
+                            Pedir <FaWhatsapp className="ml-2 text-lg" />
+                          </a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}

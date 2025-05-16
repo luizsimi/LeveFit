@@ -214,33 +214,39 @@ const PratoCard = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 dark:shadow-gray-900/30">
-      <div className="relative h-52 bg-gray-200 dark:bg-gray-700 overflow-hidden group">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 dark:shadow-gray-900/30 border border-gray-100 dark:border-gray-700 group">
+      <div className="relative h-56 bg-gray-200 dark:bg-gray-700 overflow-hidden">
         {imagem ? (
           <img
             src={imagem}
             alt={nome}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             onError={handleImageError}
           />
         ) : (
           <img
             src={getDefaultImage(categoria)}
             alt={nome}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             onError={(e) => {
               e.currentTarget.src = defaultImages.default;
             }}
           />
         )}
-        <div className="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide shadow-md">
           {categoria}
+        </div>
+        <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+          <span className="font-bold text-white text-xl shadow-sm">
+            R$ {preco.toFixed(2).replace(".", ",")}
+          </span>
         </div>
       </div>
 
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-white tracking-tight leading-tight">
+      <div className="p-6">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight leading-tight">
             {nome}
           </h3>
           <span className="font-bold text-green-600 dark:text-green-400 text-lg">
@@ -250,54 +256,49 @@ const PratoCard = ({
 
         <div className="mb-3">{renderEstrelas()}</div>
 
-        <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm leading-relaxed mb-4">
+        <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm">
           {descricaoResumida}
         </p>
 
         {renderInformacoesNutricionais()}
 
-        <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center text-sm text-gray-700 dark:text-gray-300 mb-4">
-          <div className="flex items-center">
-            {fornecedor.logo ? (
-              <img
-                src={fornecedor.logo}
-                alt={fornecedor.nome}
-                className="w-7 h-7 rounded-full mr-2 border-2 border-white dark:border-gray-700 shadow-sm"
-                onError={handleFornecedorImageError}
-              />
-            ) : (
-              <img
-                src={
-                  "https://ui-avatars.com/api/?name=" +
-                  encodeURIComponent(fornecedor.nome.charAt(0)) +
-                  "&background=2F855A&color=fff"
-                }
-                alt={fornecedor.nome}
-                className="w-7 h-7 rounded-full mr-2 border-2 border-white dark:border-gray-700 shadow-sm"
-              />
-            )}
-            <span className="font-medium">{fornecedor.nome}</span>
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-4 mt-auto">
+          <div className="flex items-center mb-3">
+            <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full overflow-hidden mr-2 flex-shrink-0">
+              {fornecedor.logo ? (
+                <img
+                  src={fornecedor.logo}
+                  alt={fornecedor.nome}
+                  className="w-full h-full object-cover"
+                  onError={handleFornecedorImageError}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-green-600 text-white font-bold">
+                  {fornecedor.nome.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {fornecedor.nome}
+            </span>
           </div>
-        </div>
 
-        <div className="flex justify-between items-center space-x-3">
-          <Link
-            to={`/pratos/${id}`}
-            className="text-green-600 dark:text-green-400 font-medium hover:text-green-700 dark:hover:text-green-300 transition-colors flex items-center group"
-          >
-            Ver detalhes
-            <FaArrowRight className="ml-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out" />
-          </Link>
-
-          <a
-            href={criarLinkWhatsApp()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 hover:brightness-110"
-          >
-            <FaWhatsapp className="mr-2 text-lg animate-pulse" />
-            <span>Fazer Pedido</span>
-          </a>
+          <div className="flex space-x-2">
+            <Link
+              to={`/pratos/${id}`}
+              className="flex-1 bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 border border-green-500 dark:border-green-500 font-medium text-sm py-2.5 rounded-lg text-center hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-300 flex items-center justify-center"
+            >
+              Detalhes <FaArrowRight className="ml-2" />
+            </Link>
+            <a
+              href={criarLinkWhatsApp()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium text-sm py-2.5 rounded-lg text-center transition-colors duration-300 flex items-center justify-center shadow-md hover:shadow-lg"
+            >
+              Pedir <FaWhatsapp className="ml-2 text-lg" />
+            </a>
+          </div>
         </div>
       </div>
     </div>

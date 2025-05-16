@@ -8,6 +8,7 @@ import {
   FaArrowLeft,
   FaMapMarkerAlt,
   FaWhatsapp,
+  FaUtensils,
 } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -325,54 +326,62 @@ const Fornecedores = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {fornecedoresFiltrados.map((fornecedor, index) => (
               <div
                 key={fornecedor.id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg dark:shadow-gray-900/30 overflow-hidden transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl dark:shadow-gray-900/30 overflow-hidden transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn border border-gray-100 dark:border-gray-700 group"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="relative h-40 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 flex justify-center items-center text-white">
-                  {fornecedor.logo ? (
-                    <img
-                      src={fornecedor.logo}
-                      alt={fornecedor.nome}
-                      className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-md"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 flex items-center justify-center text-3xl font-bold border-4 border-white dark:border-gray-800">
-                      {fornecedor.nome.charAt(0)}
-                    </div>
-                  )}
+                <div className="relative h-48 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 overflow-hidden">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_40%)]"></div>
+                  <div className="absolute top-0 left-0 w-full h-full transition-transform duration-700 group-hover:scale-110 flex justify-center items-center">
+                    {fornecedor.logo ? (
+                      <img
+                        src={fornecedor.logo}
+                        alt={fornecedor.nome}
+                        className="w-28 h-28 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-xl"
+                      />
+                    ) : (
+                      <div className="w-28 h-28 rounded-full bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 flex items-center justify-center text-4xl font-bold border-4 border-white dark:border-gray-800 shadow-xl">
+                        {fornecedor.nome.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+
                   {fornecedor.avaliacaoMedia !== undefined &&
                     fornecedor.avaliacaoMedia > 0 && (
-                      <div className="absolute top-3 right-3 bg-white dark:bg-gray-800 px-2 py-1 rounded-lg shadow-md flex items-center">
+                      <div className="absolute top-3 right-3 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-md flex items-center">
                         <div className="flex mr-1">
                           {renderEstrelas(fornecedor.avaliacaoMedia)}
                         </div>
-                        <span className="text-gray-800 dark:text-gray-300 text-sm font-medium">
+                        <span className="text-gray-800 dark:text-gray-300 text-sm font-semibold">
                           {fornecedor.avaliacaoMedia.toFixed(1)}
                         </span>
                       </div>
                     )}
+
+                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
 
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
                     {fornecedor.nome}
                   </h3>
 
                   <div className="flex items-start space-x-1 text-gray-600 dark:text-gray-400 text-sm mb-3">
-                    <FaMapMarkerAlt className="mt-1 flex-shrink-0" />
-                    <span>{fornecedor.endereco || "Várias localidades"}</span>
+                    <FaMapMarkerAlt className="mt-1 flex-shrink-0 text-green-500 dark:text-green-400" />
+                    <span className="ml-1">
+                      {fornecedor.endereco || "Várias localidades"}
+                    </span>
                   </div>
 
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
                     {fornecedor.descricao ||
                       "Este fornecedor oferece diversos pratos saudáveis para seu dia a dia."}
                   </p>
 
-                  <div className="flex flex-wrap gap-1 mb-4">
+                  <div className="flex flex-wrap gap-1.5 mb-4">
                     {fornecedor.pratos
                       ?.map((prato) => prato.categoria)
                       .filter(
@@ -383,7 +392,7 @@ const Fornecedores = () => {
                       .map((categoria, index) => (
                         <span
                           key={index}
-                          className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs px-2 py-1 rounded-full"
+                          className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs px-2.5 py-1 rounded-full font-medium"
                         >
                           {categoria}
                         </span>
@@ -394,7 +403,7 @@ const Fornecedores = () => {
                         (categoria, index, self) =>
                           self.indexOf(categoria) === index
                       ).length || 0) > 3 && (
-                      <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs px-2 py-1 rounded-full">
+                      <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs px-2.5 py-1 rounded-full font-medium">
                         +
                         {(fornecedor.pratos
                           ?.map((prato) => prato.categoria)
@@ -407,12 +416,26 @@ const Fornecedores = () => {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      <span className="font-medium">
-                        {fornecedor.pratos?.length || 0}
-                      </span>{" "}
-                      {fornecedor.pratos?.length === 1 ? "prato" : "pratos"}
+                  <div className="border-t border-gray-100 dark:border-gray-700 pt-4 mt-auto">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <FaUtensils className="mr-1.5 text-green-500 dark:text-green-400" />
+                        <span className="font-medium">
+                          {fornecedor.pratos?.length || 0}
+                        </span>{" "}
+                        {fornecedor.pratos?.length === 1 ? "prato" : "pratos"}
+                      </div>
+
+                      {fornecedor.totalAvaliacoes ? (
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="font-medium">
+                            {fornecedor.totalAvaliacoes}
+                          </span>{" "}
+                          {fornecedor.totalAvaliacoes === 1
+                            ? "avaliação"
+                            : "avaliações"}
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="flex space-x-2">
@@ -424,18 +447,19 @@ const Fornecedores = () => {
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center p-2 bg-green-500 hover:bg-green-600 rounded-lg text-white transition-colors"
+                          className="flex-1 bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 border border-green-500 dark:border-green-500 font-medium text-sm py-2.5 rounded-lg text-center hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-300 flex items-center justify-center"
                           title="Contato WhatsApp"
                         >
-                          <FaWhatsapp />
+                          <FaWhatsapp className="mr-1.5" /> Contato
                         </a>
                       )}
 
                       <Link
                         to={`/fornecedores/${fornecedor.id}`}
-                        className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white rounded-lg hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
+                        className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium text-sm py-2.5 rounded-lg text-center transition-colors duration-300 flex items-center justify-center shadow-md hover:shadow-lg"
                       >
-                        Ver Cardápio
+                        Ver Cardápio{" "}
+                        <FaArrowLeft className="ml-2 transform rotate-180" />
                       </Link>
                     </div>
                   </div>

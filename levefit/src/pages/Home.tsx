@@ -847,7 +847,7 @@ const Home = () => {
 
           {/* Lista de Pratos */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[...Array(6)].map((_, index) => (
                 <div
                   key={index}
@@ -874,7 +874,7 @@ const Home = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {pratos.map((prato) => (
                 <PratoCard key={prato.id} {...prato} />
               ))}
