@@ -738,65 +738,93 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Passo 1 */}
-                <div className="relative">
-                  <div className="absolute -top-4 -left-4 w-24 h-24 bg-green-100 dark:bg-green-900/20 rounded-full opacity-70"></div>
-                  <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 h-full transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border-t-4 border-green-500">
-                    <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-full flex items-center justify-center mb-4 text-white">
-                      <FaUtensils className="text-xl" />
+          <div className="relative">
+            {/* Linha de conexão */}
+            <div className="hidden md:block absolute left-1/2 top-24 bottom-24 w-0.5 bg-gradient-to-b from-green-400 to-green-600 z-0"></div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
+              {/* Passo 1 */}
+              <div className="group">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 h-full relative overflow-hidden">
+                  {/* Círculo decorativo */}
+                  <div className="absolute -top-10 -right-10 w-20 h-20 bg-green-400/10 rounded-full transition-transform duration-300 group-hover:scale-150"></div>
+
+                  <div className="flex flex-col items-center text-center relative">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-xl shadow-md transform rotate-45 mb-5 group-hover:rotate-0 transition-transform duration-300">
+                      <div className="w-full h-full flex items-center justify-center transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">
+                        <FaUtensils className="text-white text-xl" />
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2 flex items-center">
-                      <span className="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm font-bold">
-                        1
-                      </span>
+
+                    <div className="absolute -top-2 -left-2 bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md">
+                      1
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
                       Escolha seu prato
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+
+                    <p className="text-gray-600 dark:text-gray-300 relative">
                       Navegue pelo nosso cardápio premium e selecione os pratos
                       que deseja experimentar. Você pode filtrar por categorias
                       para encontrar exatamente o que procura.
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Passo 2 */}
-                <div className="relative mt-8 md:mt-4">
-                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full opacity-70"></div>
-                  <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 h-full transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border-t-4 border-green-500">
-                    <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-full flex items-center justify-center mb-4 text-white">
-                      <FaWhatsapp className="text-xl" />
+              {/* Passo 2 */}
+              <div className="group md:mt-12">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 h-full relative overflow-hidden">
+                  {/* Círculo decorativo */}
+                  <div className="absolute -top-10 -right-10 w-20 h-20 bg-green-400/10 rounded-full transition-transform duration-300 group-hover:scale-150"></div>
+
+                  <div className="flex flex-col items-center text-center relative">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-xl shadow-md transform rotate-45 mb-5 group-hover:rotate-0 transition-transform duration-300">
+                      <div className="w-full h-full flex items-center justify-center transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">
+                        <FaWhatsapp className="text-white text-xl" />
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2 flex items-center">
-                      <span className="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm font-bold">
-                        2
-                      </span>
+
+                    <div className="absolute -top-2 -left-2 bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md">
+                      2
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
                       Peça pelo WhatsApp
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+
+                    <p className="text-gray-600 dark:text-gray-300 relative">
                       Com apenas um clique no botão "Fazer Pedido", você será
                       direcionado para o WhatsApp do fornecedor com uma mensagem
                       personalizada já pronta para envio.
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Passo 3 */}
-                <div className="relative mt-8 md:mt-8">
-                  <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-green-100 dark:bg-green-900/20 rounded-full opacity-70"></div>
-                  <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 h-full transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border-t-4 border-green-500">
-                    <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-full flex items-center justify-center mb-4 text-white">
-                      <FaMapMarkedAlt className="text-xl" />
+              {/* Passo 3 */}
+              <div className="group">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 h-full relative overflow-hidden">
+                  {/* Círculo decorativo */}
+                  <div className="absolute -top-10 -right-10 w-20 h-20 bg-green-400/10 rounded-full transition-transform duration-300 group-hover:scale-150"></div>
+
+                  <div className="flex flex-col items-center text-center relative">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-xl shadow-md transform rotate-45 mb-5 group-hover:rotate-0 transition-transform duration-300">
+                      <div className="w-full h-full flex items-center justify-center transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">
+                        <FaMapMarkedAlt className="text-white text-xl" />
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2 flex items-center">
-                      <span className="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm font-bold">
-                        3
-                      </span>
+
+                    <div className="absolute -top-2 -left-2 bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md">
+                      3
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
                       Receba sem sair de casa
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+
+                    <p className="text-gray-600 dark:text-gray-300 relative">
                       Finalize seu pedido com o fornecedor via WhatsApp,
                       combinando a forma de pagamento e entrega. Logo sua
                       refeição chegará fresquinha e pronta para ser saboreada!
@@ -804,20 +832,20 @@ const Home = () => {
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="flex justify-center mt-10 mb-2">
-                <div className="bg-green-50 dark:bg-green-900/10 rounded-lg p-4 max-w-2xl border border-green-100 dark:border-green-900/20">
-                  <div className="flex">
-                    <div className="mr-4 text-green-500 dark:text-green-400">
-                      <FaCheck className="text-xl" />
-                    </div>
-                    <div>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm">
-                        <span className="font-bold">Importante:</span> Todos os
-                        fornecedores são verificados e seus alimentos seguem os
-                        mais altos padrões de qualidade. Bom apetite!
-                      </p>
-                    </div>
+            <div className="flex justify-center mt-10">
+              <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg px-6 py-4 max-w-2xl border border-green-100 dark:border-green-900/30 shadow-sm">
+                <div className="flex items-start">
+                  <div className="mr-4 bg-green-500 text-white p-2 rounded-lg">
+                    <FaCheck className="text-lg" />
+                  </div>
+                  <div>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      <span className="font-bold">Importante:</span> Todos os
+                      fornecedores são verificados e seus alimentos seguem os
+                      mais altos padrões de qualidade. Bom apetite!
+                    </p>
                   </div>
                 </div>
               </div>
