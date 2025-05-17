@@ -149,6 +149,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       console.log("DEBUG - AuthContext - Atualizando dados do usuário da API");
       const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("DEBUG - AuthContext - Token não encontrado");
+        return;
+      }
 
       const endpoint =
         userType === "fornecedor"
@@ -162,21 +166,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const updatedUserData = response.data;
       console.log(
         "DEBUG - AuthContext - Dados atualizados recebidos:",
-        updatedUserData
+        updatedUserData ? "dados válidos" : "dados inválidos"
       );
 
-      localStorage.setItem("userData", JSON.stringify(updatedUserData));
-      setUserData(updatedUserData);
-
-      return updatedUserData;
+      if (updatedUserData) {
+        localStorage.setItem("userData", JSON.stringify(updatedUserData));
+        setUserData(updatedUserData);
+        return updatedUserData;
+      }
     } catch (error) {
       console.error("DEBUG - AuthContext - Erro ao atualizar dados:", error);
+      // Se houver erro de autenticação, realizar logout para evitar loops infinitos
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        console.log(
+          "DEBUG - AuthContext - Erro de autenticação, realizando logout"
+        );
+        logout();
+      }
     } finally {
       setIsRefreshing(false);
-      // Adicionar um pequeno delay antes de permitir nova atualização
+      // Adicionar um delay mais longo antes de permitir nova atualização
       setTimeout(() => {
         refreshingRef.current = false;
-      }, 2000);
+      }, 5000); // 5 segundos para evitar requisições frequentes
     }
   };
 

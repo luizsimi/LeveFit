@@ -152,11 +152,11 @@ const Footer = () => {
             <div className="flex items-start mt-5 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
               <FaMapMarkerAlt className="text-green-600 dark:text-green-400 mt-1 mr-3 flex-shrink-0" />
               <span className="text-gray-600 dark:text-gray-300">
-                Av. Principal, 1000
+                Jardim Jose Ometto II
                 <br />
-                Bairro Centro, Cidade - Estado
+                Araras - São Paulo
                 <br />
-                CEP: 00000-000
+                CEP: 13606-360
               </span>
             </div>
           </div>
@@ -216,7 +216,7 @@ const Footer = () => {
               <div className="flex items-start">
                 <FaPhone className="text-green-600 dark:text-green-400 mt-1 mr-3 flex-shrink-0" />
                 <span className="text-gray-600 dark:text-gray-300">
-                  (99) 99999-9999
+                  (19) 3456-7890
                 </span>
               </div>
               <div className="flex items-start">

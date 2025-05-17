@@ -107,9 +107,9 @@ const Contato = () => {
                       Endereço
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      Av. Paulista, 1000 - Bela Vista
+                      Jardim Jose Ometto II
                       <br />
-                      São Paulo - SP, 01310-100
+                      Araras - São Paulo, 13606-360
                     </p>
                   </div>
                 </div>
@@ -123,7 +123,7 @@ const Contato = () => {
                       Telefone
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      (11) 3456-7890
+                      (19) 3456-7890
                     </p>
                   </div>
                 </div>
@@ -151,7 +151,7 @@ const Contato = () => {
                       WhatsApp
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      (11) 98765-4321
+                      (19) 98765-4321
                     </p>
                   </div>
                 </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -11,6 +11,9 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
+
+// Variável estática para controlar se já carregou o perfil (evita múltiplas solicitações)
+let alreadyFetchedProfile = false;
 
 interface UserProfileModalProps {
   onClose: () => void;
@@ -53,7 +56,7 @@ const formSchema = yup.object().shape({
 });
 
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
-  const { userType, userData } = useAuth();
+  const { userType, userData, updateUserData } = useAuth();
   const [loading, setLoading] = useState(false);
   const [carregandoPerfil, setCarregandoPerfil] = useState(true);
   const [error, setError] = useState("");
@@ -61,6 +64,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const isRequestingRef = useRef(false);
 
   const {
     register,
@@ -81,80 +85,104 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
     },
   });
 
-  useEffect(() => {
-    const buscarPerfil = async () => {
-      try {
-        setCarregandoPerfil(true);
-        const token = localStorage.getItem("token");
-        const endpoint =
-          userType === "cliente"
-            ? "http://localhost:3333/clientes/perfil"
-            : "http://localhost:3333/fornecedores/perfil";
+  // Função para buscar perfil sem useEffect
+  const buscarPerfil = async () => {
+    // Só executar uma vez
+    if (alreadyFetchedProfile || isRequestingRef.current) return;
 
-        const response = await axios.get(endpoint, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    try {
+      isRequestingRef.current = true;
+      alreadyFetchedProfile = true;
 
-        const perfil = response.data;
-        console.log("Dados do perfil recebidos:", perfil);
-
-        // Definindo valores iniciais com base no tipo de usuário
-        if (userType === "cliente") {
-          reset({
-            nome: perfil.nome || "",
-            endereco: perfil.endereco || "",
-            telefone: perfil.telefone || "",
-            senha: "",
-            confirmarSenha: "",
-          });
-        } else {
-          reset({
-            nome: perfil.nome || "",
-            whatsapp: perfil.whatsapp || "",
-            descricao: perfil.descricao || "",
-            logo: perfil.logo || "",
-            senha: "",
-            confirmarSenha: "",
-          });
-        }
-
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Token de autenticação não encontrado");
         setCarregandoPerfil(false);
-      } catch (error) {
-        console.error("Erro ao buscar perfil:", error);
-        if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError<ErrorResponse>;
-          if (
-            axiosError.response?.status === 401 ||
-            axiosError.response?.status === 403
-          ) {
-            onClose();
-          } else {
-            setError("Erro ao buscar dados do perfil");
-          }
-        } else {
-          setError("Ocorreu um erro inesperado");
-        }
-        setCarregandoPerfil(false);
+        return;
       }
-    };
 
-    if (userType && userData) {
-      buscarPerfil();
-    } else {
-      onClose();
+      const endpoint =
+        userType === "cliente"
+          ? "http://localhost:3333/clientes/perfil"
+          : "http://localhost:3333/fornecedores/perfil";
+
+      console.log("Buscando perfil do usuário tipo:", userType);
+      const response = await axios.get(endpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const perfil = response.data;
+      console.log("Dados do perfil recebidos com sucesso");
+
+      // Definindo valores iniciais com base no tipo de usuário
+      if (userType === "cliente") {
+        reset({
+          nome: perfil.nome || "",
+          endereco: perfil.endereco || "",
+          telefone: perfil.telefone || "",
+          senha: "",
+          confirmarSenha: "",
+        });
+      } else {
+        reset({
+          nome: perfil.nome || "",
+          whatsapp: perfil.whatsapp || "",
+          descricao: perfil.descricao || "",
+          logo: perfil.logo || "",
+          senha: "",
+          confirmarSenha: "",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao buscar perfil:", error);
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<ErrorResponse>;
+        if (
+          axiosError.response?.status === 401 ||
+          axiosError.response?.status === 403
+        ) {
+          onClose();
+        } else {
+          setError("Erro ao buscar dados do perfil");
+        }
+      } else {
+        setError("Ocorreu um erro inesperado");
+      }
+    } finally {
+      setCarregandoPerfil(false);
+      isRequestingRef.current = false;
     }
-  }, [userType, userData, reset, onClose]);
+  };
+
+  // Chamar buscarPerfil manualmente
+  if (carregandoPerfil && userType && userData && !isRequestingRef.current) {
+    buscarPerfil();
+  }
+
+  // Resetar flag quando o componente for fechado
+  const handleCloseModal = () => {
+    alreadyFetchedProfile = false;
+    onClose();
+  };
 
   const onSubmit = async (data: ProfileFormData) => {
+    if (isRequestingRef.current) return;
+
     setLoading(true);
     setError("");
     setSuccess("");
+    isRequestingRef.current = true;
 
     try {
-      console.log("Dados a serem enviados:", data);
+      console.log("Enviando dados do perfil para atualização");
       const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Token de autenticação não encontrado");
+        return;
+      }
+
       const endpoint =
         userType === "cliente"
           ? "http://localhost:3333/clientes/perfil"
@@ -186,7 +214,13 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
         },
       });
 
-      console.log("Resposta da atualização:", response.data);
+      console.log("Perfil atualizado com sucesso");
+
+      // Atualizar os dados no contexto diretamente para evitar uma chamada adicional
+      if (response.data) {
+        updateUserData(response.data);
+      }
+
       setSuccess("Perfil atualizado com sucesso!");
 
       // Limpar campos de senha após atualização bem-sucedida
@@ -196,18 +230,21 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
         confirmarSenha: "",
       });
 
-      // Atualizar os dados do usuário no contexto
-      // Aqui você pode adicionar código para atualizar o contexto se necessário
-
       // Fechar o modal após alguns segundos
       setTimeout(() => {
-        onClose();
+        handleCloseModal();
       }, 2000);
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError<ErrorResponse>;
-        if (axiosError.response?.data) {
+        if (
+          axiosError.response?.status === 401 ||
+          axiosError.response?.status === 403
+        ) {
+          setError("Sessão expirada, faça login novamente");
+          setTimeout(() => handleCloseModal(), 2000);
+        } else if (axiosError.response?.data) {
           setError(
             axiosError.response.data.error || "Erro ao atualizar perfil"
           );
@@ -219,6 +256,10 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
       }
     } finally {
       setLoading(false);
+      // Adicionar delay antes de permitir nova requisição
+      setTimeout(() => {
+        isRequestingRef.current = false;
+      }, 1000);
     }
   };
 
@@ -430,7 +471,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
             </h2>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleCloseModal}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded-full transition-colors"
             aria-label="Fechar"
           >
@@ -473,7 +514,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
               <div className="flex justify-end mt-6 space-x-3">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={handleCloseModal}
                   className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 >
                   Cancelar
