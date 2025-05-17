@@ -21,17 +21,6 @@ interface FornecedorModalProps {
 const FornecedorModal = ({ fornecedor, onClose }: FornecedorModalProps) => {
   if (!fornecedor) return null;
 
-  // Função de tratamento de erros para imagens
-  const handleImageError = (
-    e: React.SyntheticEvent<HTMLImageElement, Event>
-  ) => {
-    console.log("Erro ao carregar imagem, usando fallback");
-    e.currentTarget.onerror = null; // Evita loop infinito
-    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      fornecedor.nome
-    )}&background=2F855A&color=fff&size=200`;
-  };
-
   // Criar link do WhatsApp com número fixo
   const criarLinkWhatsApp = () => {
     let numero = "";
@@ -79,43 +68,51 @@ const FornecedorModal = ({ fornecedor, onClose }: FornecedorModalProps) => {
         </div>
 
         <div className="p-6">
-          <div className="flex flex-col items-center mb-6">
-            {fornecedor.logo ? (
-              <img
-                src={fornecedor.logo}
-                alt={fornecedor.nome}
-                className="w-28 h-28 rounded-full object-cover mb-4 border-4 border-white dark:border-gray-700 shadow-md transition-transform hover:scale-105 duration-300"
-                onError={handleImageError}
-              />
-            ) : (
-              <div className="w-28 h-28 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center mb-4 border-4 border-white dark:border-gray-700 shadow-md">
-                <span className="text-4xl font-bold text-green-600 dark:text-green-400">
-                  {fornecedor.nome.charAt(0)}
-                </span>
-              </div>
-            )}
-            <h3 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">
-              {fornecedor.nome}
-            </h3>
+          <div className="flex flex-col md:flex-row md:space-x-6 items-center">
+            <div className="mb-4 md:mb-0">
+              {fornecedor?.logo ? (
+                <img
+                  src={fornecedor.logo}
+                  alt={fornecedor.nome}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg"
+                  onError={(e) => {
+                    // Fallback para avatar com inicial se a imagem falhar
+                    e.currentTarget.onerror = null;
+                    const nome = fornecedor.nome;
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      nome
+                    )}&background=2F855A&color=fff&size=200`;
+                  }}
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                  {fornecedor?.nome.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col">
+              <h3 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">
+                {fornecedor.nome}
+              </h3>
+              {fornecedor.descricao ? (
+                <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 shadow-inner">
+                  <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center">
+                    <FaInfoCircle className="mr-2 text-green-600 dark:text-green-400" />{" "}
+                    Sobre nós
+                  </h4>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    {fornecedor.descricao}
+                  </p>
+                </div>
+              ) : (
+                <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 shadow-inner">
+                  <p className="text-gray-500 dark:text-gray-400 italic text-center">
+                    Este fornecedor ainda não adicionou uma descrição.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-
-          {fornecedor.descricao ? (
-            <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 shadow-inner">
-              <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center">
-                <FaInfoCircle className="mr-2 text-green-600 dark:text-green-400" />{" "}
-                Sobre nós
-              </h4>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                {fornecedor.descricao}
-              </p>
-            </div>
-          ) : (
-            <div className="mb-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 shadow-inner">
-              <p className="text-gray-500 dark:text-gray-400 italic text-center">
-                Este fornecedor ainda não adicionou uma descrição.
-              </p>
-            </div>
-          )}
 
           <div className="mt-6">
             <a

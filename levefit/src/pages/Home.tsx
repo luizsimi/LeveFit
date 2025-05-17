@@ -521,12 +521,12 @@ const Home = () => {
                               .map((prato) => (
                                 <div
                                   key={prato.id}
-                                  className="min-w-[250px] max-w-[250px] bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-red-200 dark:border-red-900/20 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative group"
+                                  className="min-w-[300px] max-w-[300px] bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-red-200 dark:border-red-900/20 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative group"
                                 >
-                                  {/* Tag de desconto em formato de balão (menor) */}
+                                  {/* Tag de desconto em formato de balão (maior) */}
                                   <div className="absolute -top-1 -right-1 z-20">
                                     <div className="relative">
-                                      <div className="bg-red-600 text-white font-bold text-sm w-12 h-12 rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-gray-800">
+                                      <div className="bg-red-600 text-white font-bold text-sm w-14 h-14 rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-gray-800">
                                         <div className="flex flex-col items-center leading-none text-center">
                                           <span className="text-[10px]">
                                             ATÉ
@@ -551,7 +551,7 @@ const Home = () => {
                                     </div>
                                   </div>
 
-                                  <div className="relative h-32 overflow-hidden bg-gradient-to-br from-yellow-100 to-red-100 dark:from-yellow-900/20 dark:to-red-900/20">
+                                  <div className="relative h-40 overflow-hidden bg-gradient-to-br from-yellow-100 to-red-100 dark:from-yellow-900/20 dark:to-red-900/20">
                                     {prato.imagem ? (
                                       <img
                                         src={prato.imagem}
@@ -566,15 +566,15 @@ const Home = () => {
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                                   </div>
 
-                                  <div className="p-3">
-                                    <h3 className="font-bold text-base mb-1 text-gray-800 dark:text-white line-clamp-1">
+                                  <div className="p-4">
+                                    <h3 className="font-bold text-base mb-2 text-gray-800 dark:text-white line-clamp-1">
                                       {prato.nome}
                                     </h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
                                       {prato.descricao}
                                     </p>
 
-                                    <div className="mt-1 flex items-center justify-between">
+                                    <div className="mt-2 flex items-center justify-between">
                                       <div>
                                         <div className="flex items-center">
                                           <span className="text-gray-400 dark:text-gray-500 line-through text-xs">
@@ -583,23 +583,23 @@ const Home = () => {
                                               ? prato.precoOriginal.toFixed(2)
                                               : prato.preco.toFixed(2)}
                                           </span>
-                                          <span className="ml-1 bg-red-600 text-white text-[10px] font-bold px-1 py-0.5 rounded">
+                                          <span className="ml-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                                             OFERTA
                                           </span>
                                         </div>
-                                        <div className="text-red-600 dark:text-red-400 font-bold">
+                                        <div className="text-red-600 dark:text-red-400 font-bold text-lg">
                                           R$ {prato.preco.toFixed(2)}
                                         </div>
                                       </div>
 
-                                      <div className="text-right text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded font-medium">
+                                      <div className="text-right text-[10px] bg-green-500 text-white px-2 py-1 rounded-full font-medium">
                                         {prato.categoria}
                                       </div>
                                     </div>
 
                                     <Link
                                       to={`/prato/${prato.id}`}
-                                      className="mt-2 w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white py-1.5 rounded text-sm font-medium transition-all duration-300 flex items-center justify-center group-hover:shadow-md"
+                                      className="mt-3 w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center group-hover:shadow-md"
                                     >
                                       Ver detalhes
                                     </Link>

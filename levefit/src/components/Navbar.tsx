@@ -9,8 +9,6 @@ import {
   FaUser,
   FaCheckCircle,
   FaTimesCircle,
-  FaSun,
-  FaMoon,
   FaLeaf,
   FaHome,
   FaStore,
@@ -73,7 +71,6 @@ const Navbar = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, userType, userData, logout } = useAuth();
   const navigate = useNavigate();
@@ -86,7 +83,6 @@ const Navbar = () => {
     const isDarkMode =
       localStorage.getItem("darkMode") === "true" ||
       window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setDarkMode(isDarkMode);
 
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
@@ -94,19 +90,6 @@ const Navbar = () => {
       document.documentElement.classList.remove("dark");
     }
   }, []);
-
-  // Alternar entre modo claro e escuro
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem("darkMode", String(newDarkMode));
-
-    if (newDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
 
   const handleLogout = () => {
     logout();
@@ -178,19 +161,6 @@ const Navbar = () => {
 
           {/* Área de autenticação e botões */}
           <div className="flex items-center space-x-2">
-            {/* Botão de alternância de modo escuro/claro */}
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300"
-              aria-label={
-                darkMode
-                  ? "Alternar para modo claro"
-                  : "Alternar para modo escuro"
-              }
-            >
-              {darkMode ? <FaSun /> : <FaMoon />}
-            </button>
-
             {/* Área de autenticação */}
             {isAuthenticated && userData ? (
               <div className="relative" ref={dropdownRef}>

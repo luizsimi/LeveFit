@@ -82,7 +82,7 @@ const PratoCard = ({
 }: PratoProps) => {
   // Limitar a descrição a um número máximo de caracteres
   const descricaoResumida =
-    descricao.length > 100 ? `${descricao.substring(0, 100)}...` : descricao;
+    descricao.length > 80 ? `${descricao.substring(0, 80)}...` : descricao;
 
   // Criar link do WhatsApp
   const criarLinkWhatsApp = () => {
@@ -121,16 +121,18 @@ const PratoCard = ({
 
     for (let i = 1; i <= 5; i++) {
       if (i <= notaArredondada) {
-        estrelas.push(<FaStar key={i} className="text-yellow-400" />);
+        estrelas.push(<FaStar key={i} className="text-yellow-400 text-xs" />);
       } else {
-        estrelas.push(<FaRegStar key={i} className="text-yellow-400" />);
+        estrelas.push(
+          <FaRegStar key={i} className="text-yellow-400 text-xs" />
+        );
       }
     }
 
     return (
       <div className="flex items-center">
         <div className="flex mr-1">{estrelas}</div>
-        <span className="text-sm text-gray-600 dark:text-gray-400">
+        <span className="text-[10px] text-gray-600 dark:text-gray-400">
           ({totalAvaliacoes}{" "}
           {totalAvaliacoes === 1 ? "avaliação" : "avaliações"})
         </span>
@@ -146,65 +148,65 @@ const PratoCard = ({
     }
 
     return (
-      <div className="mt-3 mb-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+      <div className="mt-2 mb-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
             Informações Nutricionais {porcao && `(${porcao})`}
           </span>
         </div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-1">
           {calorias && (
-            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded-lg p-1">
-              <div className="flex items-center mb-1">
-                <FaFire className="text-orange-500 mr-1 text-xs" />
-                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded p-0.5">
+              <div className="flex items-center">
+                <FaFire className="text-orange-500 mr-0.5 text-[8px]" />
+                <span className="text-[9px] font-semibold text-gray-700 dark:text-gray-300">
                   {calorias}
                 </span>
               </div>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+              <span className="text-[8px] text-gray-500 dark:text-gray-400">
                 kcal
               </span>
             </div>
           )}
 
           {proteinas && (
-            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded-lg p-1">
-              <div className="flex items-center mb-1">
-                <BiDumbbell className="text-blue-500 mr-1 text-xs" />
-                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded p-0.5">
+              <div className="flex items-center">
+                <BiDumbbell className="text-blue-500 mr-0.5 text-[8px]" />
+                <span className="text-[9px] font-semibold text-gray-700 dark:text-gray-300">
                   {proteinas}g
                 </span>
               </div>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                proteína
+              <span className="text-[8px] text-gray-500 dark:text-gray-400">
+                prot
               </span>
             </div>
           )}
 
           {carboidratos && (
-            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded-lg p-1">
-              <div className="flex items-center mb-1">
-                <GiSlicedBread className="text-yellow-500 mr-1 text-xs" />
-                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded p-0.5">
+              <div className="flex items-center">
+                <GiSlicedBread className="text-yellow-500 mr-0.5 text-[8px]" />
+                <span className="text-[9px] font-semibold text-gray-700 dark:text-gray-300">
                   {carboidratos}g
                 </span>
               </div>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+              <span className="text-[8px] text-gray-500 dark:text-gray-400">
                 carbs
               </span>
             </div>
           )}
 
           {gorduras && (
-            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded-lg p-1">
-              <div className="flex items-center mb-1">
-                <IoNutrition className="text-purple-500 mr-1 text-xs" />
-                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+            <div className="flex flex-col items-center bg-green-50 dark:bg-green-900/20 rounded p-0.5">
+              <div className="flex items-center">
+                <IoNutrition className="text-purple-500 mr-0.5 text-[8px]" />
+                <span className="text-[9px] font-semibold text-gray-700 dark:text-gray-300">
                   {gorduras}g
                 </span>
               </div>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                gorduras
+              <span className="text-[8px] text-gray-500 dark:text-gray-400">
+                gord
               </span>
             </div>
           )}
@@ -214,8 +216,8 @@ const PratoCard = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 dark:shadow-gray-900/30 border border-gray-100 dark:border-gray-700 group">
-      <div className="relative h-56 bg-gray-200 dark:bg-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 dark:shadow-gray-900/30 border border-gray-100 dark:border-gray-700 group">
+      <div className="relative h-44 bg-gray-200 dark:bg-gray-700 overflow-hidden">
         {imagem ? (
           <img
             src={imagem}
@@ -234,37 +236,37 @@ const PratoCard = ({
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div className="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide shadow-md">
+        <div className="absolute top-2 right-2 bg-green-500 dark:bg-green-600 text-white px-2 py-1 rounded-full text-xs font-semibold tracking-wide shadow-md">
           {categoria}
         </div>
-        <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-          <span className="font-bold text-white text-xl shadow-sm">
+        <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+          <span className="font-bold text-white text-lg shadow-sm">
             R$ {preco.toFixed(2).replace(".", ",")}
           </span>
         </div>
       </div>
 
-      <div className="p-6">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight leading-tight">
+      <div className="p-4">
+        <div className="flex justify-between items-start mb-1">
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white tracking-tight leading-tight">
             {nome}
           </h3>
-          <span className="font-bold text-green-600 dark:text-green-400 text-lg">
+          <span className="font-bold text-green-600 dark:text-green-400 text-base">
             R$ {preco.toFixed(2).replace(".", ",")}
           </span>
         </div>
 
-        <div className="mb-3">{renderEstrelas()}</div>
+        <div className="mb-2">{renderEstrelas()}</div>
 
-        <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm">
+        <p className="text-gray-600 dark:text-gray-300 mb-3 text-xs">
           {descricaoResumida}
         </p>
 
         {renderInformacoesNutricionais()}
 
-        <div className="border-t border-gray-100 dark:border-gray-700 pt-4 mt-auto">
-          <div className="flex items-center mb-3">
-            <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full overflow-hidden mr-2 flex-shrink-0">
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mt-auto">
+          <div className="flex items-center mb-2">
+            <div className="w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full overflow-hidden mr-2 flex-shrink-0">
               {fornecedor.logo ? (
                 <img
                   src={fornecedor.logo}
@@ -273,12 +275,12 @@ const PratoCard = ({
                   onError={handleFornecedorImageError}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-green-600 text-white font-bold">
+                <div className="w-full h-full flex items-center justify-center bg-green-600 text-white font-bold text-xs">
                   {fornecedor.nome.charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
               {fornecedor.nome}
             </span>
           </div>
@@ -286,17 +288,17 @@ const PratoCard = ({
           <div className="flex space-x-2">
             <Link
               to={`/pratos/${id}`}
-              className="flex-1 bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 border border-green-500 dark:border-green-500 font-medium text-sm py-2.5 rounded-lg text-center hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-300 flex items-center justify-center"
+              className="flex-1 bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 border border-green-500 dark:border-green-500 font-medium text-xs py-2 rounded-lg text-center hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-300 flex items-center justify-center"
             >
-              Detalhes <FaArrowRight className="ml-2" />
+              Detalhes <FaArrowRight className="ml-1 text-xs" />
             </Link>
             <a
               href={criarLinkWhatsApp()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium text-sm py-2.5 rounded-lg text-center transition-colors duration-300 flex items-center justify-center shadow-md hover:shadow-lg"
+              className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium text-xs py-2 rounded-lg text-center transition-colors duration-300 flex items-center justify-center shadow-md hover:shadow-lg"
             >
-              Pedir <FaWhatsapp className="ml-2 text-lg" />
+              Pedir <FaWhatsapp className="ml-1" />
             </a>
           </div>
         </div>

@@ -127,14 +127,16 @@ const Fornecedores = () => {
   // Função para renderizar as estrelas de avaliação
   const renderEstrelas = (avaliacao: number) => {
     const estrelas = [];
+    const notaArredondada = Math.round(avaliacao);
+
     for (let i = 1; i <= 5; i++) {
       estrelas.push(
         <FaStar
           key={i}
-          className={`inline ${
-            i <= avaliacao
-              ? "text-yellow-400"
-              : "text-gray-300 dark:text-gray-600"
+          className={`${
+            i <= notaArredondada
+              ? "text-yellow-400 text-xs"
+              : "text-gray-300 dark:text-gray-600 text-xs"
           }`}
         />
       );
@@ -330,137 +332,110 @@ const Fornecedores = () => {
             {fornecedoresFiltrados.map((fornecedor, index) => (
               <div
                 key={fornecedor.id}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl dark:shadow-gray-900/30 overflow-hidden transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn border border-gray-100 dark:border-gray-700 group"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 dark:shadow-gray-900/30 border border-gray-100 dark:border-gray-700 group"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="relative h-48 bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 overflow-hidden">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_40%)]"></div>
-                  <div className="absolute top-0 left-0 w-full h-full transition-transform duration-700 group-hover:scale-110 flex justify-center items-center">
-                    {fornecedor.logo ? (
-                      <img
-                        src={fornecedor.logo}
-                        alt={fornecedor.nome}
-                        className="w-28 h-28 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-xl"
-                      />
-                    ) : (
-                      <div className="w-28 h-28 rounded-full bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 flex items-center justify-center text-4xl font-bold border-4 border-white dark:border-gray-800 shadow-xl">
-                        {fornecedor.nome.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-
-                  {fornecedor.avaliacaoMedia !== undefined &&
-                    fornecedor.avaliacaoMedia > 0 && (
-                      <div className="absolute top-3 right-3 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-md flex items-center">
-                        <div className="flex mr-1">
-                          {renderEstrelas(fornecedor.avaliacaoMedia)}
-                        </div>
-                        <span className="text-gray-800 dark:text-gray-300 text-sm font-semibold">
-                          {fornecedor.avaliacaoMedia.toFixed(1)}
-                        </span>
-                      </div>
-                    )}
-
-                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
+                <div className="flex flex-col items-center text-center mb-4">
+                  {fornecedor.logo ? (
+                    <img
+                      src={fornecedor.logo}
+                      alt={fornecedor.nome}
+                      className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg mb-4"
+                      onError={(e) => {
+                        // Fallback para avatar com inicial se a imagem falhar
+                        e.currentTarget.onerror = null;
+                        const nome = fornecedor.nome;
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          nome
+                        )}&background=2F855A&color=fff&size=200`;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-4">
+                      {fornecedor.nome.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-1">
                     {fornecedor.nome}
                   </h3>
+                  {fornecedor.descricao && (
+                    <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base max-w-md mx-auto">
+                      {fornecedor.descricao}
+                    </p>
+                  )}
+                </div>
 
-                  <div className="flex items-start space-x-1 text-gray-600 dark:text-gray-400 text-sm mb-3">
-                    <FaMapMarkerAlt className="mt-1 flex-shrink-0 text-green-500 dark:text-green-400" />
+                <div className="p-4">
+                  <div className="flex items-start space-x-1 text-gray-600 dark:text-gray-400 text-xs mb-2">
+                    <FaMapMarkerAlt className="mt-0.5 flex-shrink-0 text-green-500 dark:text-green-400 text-xs" />
                     <span className="ml-1">
                       {fornecedor.endereco || "Várias localidades"}
                     </span>
                   </div>
 
-                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
-                    {fornecedor.descricao ||
-                      "Este fornecedor oferece diversos pratos saudáveis para seu dia a dia."}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1.5 mb-4">
-                    {fornecedor.pratos
-                      ?.map((prato) => prato.categoria)
-                      .filter(
-                        (categoria, index, self) =>
-                          self.indexOf(categoria) === index
-                      )
-                      .slice(0, 3)
-                      .map((categoria, index) => (
-                        <span
-                          key={index}
-                          className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-xs px-2.5 py-1 rounded-full font-medium"
-                        >
-                          {categoria}
-                        </span>
-                      ))}
-                    {(fornecedor.pratos
-                      ?.map((prato) => prato.categoria)
-                      .filter(
-                        (categoria, index, self) =>
-                          self.indexOf(categoria) === index
-                      ).length || 0) > 3 && (
-                      <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs px-2.5 py-1 rounded-full font-medium">
-                        +
-                        {(fornecedor.pratos
-                          ?.map((prato) => prato.categoria)
-                          .filter(
-                            (categoria, index, self) =>
-                              self.indexOf(categoria) === index
-                          ).length || 0) - 3}{" "}
-                        mais
+                  <div className="mt-2 mb-3">
+                    <div className="flex items-center">
+                      <div className="flex mr-1">
+                        {renderEstrelas(fornecedor.avaliacaoMedia || 0)}
+                      </div>
+                      <span className="text-[10px] text-gray-600 dark:text-gray-400">
+                        ({fornecedor.totalAvaliacoes || 0}{" "}
+                        {fornecedor.totalAvaliacoes === 1
+                          ? "avaliação"
+                          : "avaliações"}
+                        )
                       </span>
-                    )}
+                    </div>
                   </div>
 
-                  <div className="border-t border-gray-100 dark:border-gray-700 pt-4 mt-auto">
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                        <FaUtensils className="mr-1.5 text-green-500 dark:text-green-400" />
-                        <span className="font-medium">
-                          {fornecedor.pratos?.length || 0}
-                        </span>{" "}
-                        {fornecedor.pratos?.length === 1 ? "prato" : "pratos"}
-                      </div>
-
-                      {fornecedor.totalAvaliacoes ? (
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          <span className="font-medium">
-                            {fornecedor.totalAvaliacoes}
-                          </span>{" "}
-                          {fornecedor.totalAvaliacoes === 1
-                            ? "avaliação"
-                            : "avaliações"}
+                  <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mt-auto">
+                    {fornecedor.pratos && fornecedor.pratos.length > 0 && (
+                      <div className="mb-3">
+                        <span className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                          Especialidades:
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {fornecedor.pratos.slice(0, 3).map((prato, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center text-[10px] bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-0.5 rounded"
+                            >
+                              <FaUtensils className="mr-1 text-[8px]" />
+                              {prato.nome.length > 15
+                                ? prato.nome.substring(0, 15) + "..."
+                                : prato.nome}
+                            </span>
+                          ))}
+                          {fornecedor.pratos.length > 3 && (
+                            <span className="inline-flex text-[10px] text-gray-500 dark:text-gray-400">
+                              +{fornecedor.pratos.length - 3} mais
+                            </span>
+                          )}
                         </div>
-                      ) : null}
-                    </div>
+                      </div>
+                    )}
 
                     <div className="flex space-x-2">
+                      <Link
+                        to={`/fornecedores/${fornecedor.id}`}
+                        className="flex-1 bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 border border-green-500 dark:border-green-500 font-medium text-xs py-2 rounded-lg text-center hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-300 flex items-center justify-center"
+                      >
+                        Ver produtos
+                      </Link>
                       {fornecedor.whatsapp && (
                         <a
                           href={`https://wa.me/${fornecedor.whatsapp.replace(
                             /\D/g,
                             ""
-                          )}`}
+                          )}?text=Olá, vim pelo LeveFit e gostaria de saber sobre seus produtos.`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 border border-green-500 dark:border-green-500 font-medium text-sm py-2.5 rounded-lg text-center hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-300 flex items-center justify-center"
-                          title="Contato WhatsApp"
+                          className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium text-xs py-2 rounded-lg text-center transition-colors duration-300 flex items-center justify-center shadow-md hover:shadow-lg"
                         >
-                          <FaWhatsapp className="mr-1.5" /> Contato
+                          <FaWhatsapp className="mr-1" />
+                          Contato
                         </a>
                       )}
-
-                      <Link
-                        to={`/fornecedores/${fornecedor.id}`}
-                        className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium text-sm py-2.5 rounded-lg text-center transition-colors duration-300 flex items-center justify-center shadow-md hover:shadow-lg"
-                      >
-                        Ver Cardápio{" "}
-                        <FaArrowLeft className="ml-2 transform rotate-180" />
-                      </Link>
                     </div>
                   </div>
                 </div>

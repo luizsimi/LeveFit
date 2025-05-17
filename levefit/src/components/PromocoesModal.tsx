@@ -170,14 +170,14 @@ const PromocoesModal = ({ isOpen, onClose }: PromocoesModalProps) => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {pratosPromocao.map((prato) => (
                       <div
                         key={prato.id}
-                        className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 relative"
+                        className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative"
                       >
                         {/* Tag de desconto em formato de fita */}
-                        <div className="absolute top-4 -right-8 bg-red-500 text-white py-1 px-10 font-bold text-sm transform rotate-45 z-10">
+                        <div className="absolute top-5 -right-10 bg-red-500 text-white py-1.5 px-12 font-bold text-sm transform rotate-45 z-10">
                           {Math.round(
                             ((prato.precoOriginal - prato.preco) /
                               prato.precoOriginal) *
@@ -186,27 +186,30 @@ const PromocoesModal = ({ isOpen, onClose }: PromocoesModalProps) => {
                           % OFF
                         </div>
 
-                        <Link to={`/prato/${prato.id}`} onClick={onClose}>
-                          <div className="relative h-44 overflow-hidden bg-green-100 dark:bg-green-900/20">
+                        <Link
+                          to={`/prato/${prato.id}`}
+                          className="flex flex-col h-full"
+                        >
+                          <div className="relative h-56 overflow-hidden bg-green-100 dark:bg-green-900/20">
                             {prato.imagem ? (
                               <img
                                 src={prato.imagem}
                                 alt={prato.nome}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
-                                <FaUtensils className="text-3xl text-gray-400 dark:text-gray-500" />
+                                <FaUtensils className="text-4xl text-gray-400 dark:text-gray-500" />
                               </div>
                             )}
 
                             {/* Badge do fornecedor */}
-                            <div className="absolute bottom-2 left-2 bg-white dark:bg-gray-800 rounded-full px-2 py-1 text-xs flex items-center shadow-md">
+                            <div className="absolute bottom-3 left-3 bg-white dark:bg-gray-800 rounded-full px-3 py-1 text-xs flex items-center shadow-md">
                               {prato.fornecedor.logo ? (
                                 <img
                                   src={prato.fornecedor.logo}
                                   alt={prato.fornecedor.nome}
-                                  className="w-4 h-4 rounded-full mr-1"
+                                  className="w-4 h-4 rounded-full mr-1.5"
                                 />
                               ) : null}
                               <span className="font-medium text-gray-800 dark:text-gray-200">
@@ -215,17 +218,11 @@ const PromocoesModal = ({ isOpen, onClose }: PromocoesModalProps) => {
                             </div>
                           </div>
 
-                          <div className="p-4">
-                            <div className="flex justify-between items-start">
-                              <h3 className="font-semibold text-gray-800 dark:text-white mb-1 line-clamp-1">
-                                {prato.nome}
-                              </h3>
-                              <div className="flex items-center bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-xs text-green-600 dark:text-green-400">
-                                {prato.categoria}
-                              </div>
-                            </div>
-
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
+                          <div className="p-5">
+                            <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-white">
+                              {prato.nome}
+                            </h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
                               {prato.descricao}
                             </p>
 
@@ -235,15 +232,15 @@ const PromocoesModal = ({ isOpen, onClose }: PromocoesModalProps) => {
                                   <span className="text-gray-400 dark:text-gray-500 line-through text-sm">
                                     R$ {prato.precoOriginal.toFixed(2)}
                                   </span>
-                                  <span className="ml-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs px-1.5 py-0.5 rounded">
+                                  <span className="ml-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs px-2 py-0.5 rounded-full font-medium">
                                     OFERTA
                                   </span>
                                 </div>
-                                <div className="text-red-600 dark:text-red-400 font-bold">
+                                <div className="text-red-600 dark:text-red-400 font-bold text-xl mt-1">
                                   R$ {prato.preco.toFixed(2)}
                                 </div>
                                 {prato.dataFimPromocao && (
-                                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     Válido até:{" "}
                                     {formatarDataValidade(
                                       prato.dataFimPromocao
@@ -252,7 +249,7 @@ const PromocoesModal = ({ isOpen, onClose }: PromocoesModalProps) => {
                                 )}
                               </div>
 
-                              <div className="flex items-center">
+                              <div className="flex items-center bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-lg">
                                 <FaStar className="text-yellow-400 mr-1" />
                                 <span className="text-sm font-medium">
                                   {prato.mediaAvaliacao.toFixed(1)}
@@ -263,8 +260,10 @@ const PromocoesModal = ({ isOpen, onClose }: PromocoesModalProps) => {
                               </div>
                             </div>
 
-                            <div className="mt-3 text-center text-green-600 dark:text-green-400 font-medium text-sm">
-                              Clique para ver detalhes
+                            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 text-center">
+                              <span className="inline-block py-2 px-4 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg font-medium hover:from-red-600 hover:to-orange-600 transition-all duration-300 text-sm">
+                                Ver detalhes
+                              </span>
                             </div>
                           </div>
                         </Link>

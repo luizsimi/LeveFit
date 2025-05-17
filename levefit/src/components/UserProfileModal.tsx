@@ -9,6 +9,8 @@ import {
   FaKey,
   FaCheck,
   FaExclamationTriangle,
+  FaUpload,
+  FaImage,
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -65,12 +67,16 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const isRequestingRef = useRef(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
+    getValues,
   } = useForm<ProfileFormData>({
     resolver: yupResolver(formSchema) as any,
     defaultValues: {
@@ -263,6 +269,89 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
     }
   };
 
+  // Função para fazer upload da imagem
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+
+    const file = e.target.files[0];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    // Validar tamanho do arquivo
+    if (file.size > maxSize) {
+      setError("A imagem deve ter no máximo 5MB");
+      return;
+    }
+
+    // Validar tipo de arquivo
+    if (!file.type.match(/^image\/(jpeg|jpg|png|gif|webp)$/i)) {
+      setError("Por favor, selecione uma imagem válida (JPEG, PNG, GIF, WEBP)");
+      return;
+    }
+
+    setUploadingImage(true);
+    setError("");
+
+    // Criar URL para pré-visualização da imagem
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+
+    try {
+      const formData = new FormData();
+      formData.append("imagem", file);
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Token de autenticação não encontrado");
+        setUploadingImage(false);
+        return;
+      }
+
+      const response = await axios.post(
+        "http://localhost:3333/upload",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Atualizar o valor do campo logo com a URL da imagem
+      if (response.data.imageUrl) {
+        reset({
+          ...getValues(),
+          logo: response.data.imageUrl,
+        });
+      }
+
+      setSuccess("Imagem carregada com sucesso!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (error) {
+      console.error("Erro ao fazer upload da imagem:", error);
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<ErrorResponse>;
+        if (axiosError.response?.data) {
+          setError(
+            axiosError.response.data.error || "Erro ao fazer upload da imagem"
+          );
+        } else {
+          setError("Erro ao conectar-se ao servidor");
+        }
+      } else {
+        setError("Ocorreu um erro inesperado ao fazer upload da imagem");
+      }
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   const renderClienteForm = () => (
     <>
       <div className="mb-4">
@@ -314,63 +403,138 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ onClose }) => {
   const renderFornecedorForm = () => (
     <>
       <div className="mb-4">
-        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-          Nome*
+        <label
+          htmlFor="nome"
+          className="block text-gray-700 dark:text-gray-300 font-medium mb-2"
+        >
+          Nome do Estabelecimento *
         </label>
         <input
+          id="nome"
           type="text"
           {...register("nome")}
-          className={`w-full px-3 py-2 border ${
-            errors.nome
-              ? "border-red-500 dark:border-red-400"
-              : "border-gray-300 dark:border-gray-600"
-          } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+          placeholder="Nome completo"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
         />
         {errors.nome && (
-          <p className="text-red-500 dark:text-red-400 text-sm mt-1">
-            {errors.nome.message}
+          <p className="text-red-500 text-sm mt-1">{errors.nome.message}</p>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <label
+          htmlFor="whatsapp"
+          className="block text-gray-700 dark:text-gray-300 font-medium mb-2"
+        >
+          WhatsApp *
+        </label>
+        <input
+          id="whatsapp"
+          type="text"
+          {...register("whatsapp")}
+          placeholder="Ex: (11) 99999-9999"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
+        />
+        {errors.whatsapp && (
+          <p className="text-red-500 text-sm mt-1">{errors.whatsapp.message}</p>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <label
+          htmlFor="descricao"
+          className="block text-gray-700 dark:text-gray-300 font-medium mb-2"
+        >
+          Descrição
+        </label>
+        <textarea
+          id="descricao"
+          {...register("descricao")}
+          placeholder="Descreva seu estabelecimento brevemente"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white h-32"
+        />
+        {errors.descricao && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.descricao.message}
           </p>
         )}
       </div>
 
       <div className="mb-4">
         <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-          WhatsApp
+          Logo do Estabelecimento
         </label>
-        <input
-          type="text"
-          {...register("whatsapp")}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          placeholder="Ex: (11) 99999-9999"
-        />
-      </div>
 
-      <div className="mb-4">
-        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-          URL da Logo (imagem)
-        </label>
-        <input
-          type="text"
-          {...register("logo")}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          placeholder="URL da imagem da sua logo"
-        />
-      </div>
+        <div className="flex flex-col items-center">
+          {/* Área de preview da imagem */}
+          <div className="mb-3 w-full flex justify-center">
+            {(imagePreview || getValues().logo) && (
+              <div className="relative group">
+                <img
+                  src={imagePreview || getValues().logo}
+                  alt="Logo do estabelecimento"
+                  className="h-32 w-32 object-cover rounded-full border-4 border-green-100 dark:border-green-900 shadow-md"
+                />
+                <div
+                  className="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 cursor-pointer"
+                  onClick={triggerFileInput}
+                >
+                  <FaUpload className="text-white text-xl" />
+                </div>
+              </div>
+            )}
 
-      <div className="mb-4">
-        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-          Descrição do seu negócio
-        </label>
-        <textarea
-          {...register("descricao")}
-          rows={4}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          placeholder="Descreva seu negócio, especialidades, horários de atendimento, etc."
-        ></textarea>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Esta descrição será exibida nos cards e no perfil do seu
-          estabelecimento.
-        </p>
+            {!imagePreview && !getValues().logo && (
+              <div
+                className="h-32 w-32 rounded-full bg-gray-100 dark:bg-gray-700 flex flex-col items-center justify-center border-4 border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                onClick={triggerFileInput}
+              >
+                <FaImage className="text-gray-400 dark:text-gray-500 text-4xl mb-2" />
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Adicionar logo
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Campo oculto para a URL da imagem */}
+          <input id="logo" type="hidden" {...register("logo")} />
+
+          {/* Input de arquivo oculto */}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+          />
+
+          {/* Botão de upload */}
+          <button
+            type="button"
+            onClick={triggerFileInput}
+            disabled={uploadingImage}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm flex items-center justify-center shadow-sm"
+          >
+            {uploadingImage ? (
+              <>
+                <span className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                Enviando...
+              </>
+            ) : (
+              <>
+                <FaUpload className="mr-2" />
+                {getValues().logo || imagePreview
+                  ? "Trocar imagem"
+                  : "Carregar logo"}
+              </>
+            )}
+          </button>
+
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+            Tamanho máximo: 5MB. Formatos: JPG, PNG, GIF, WEBP
+          </p>
+        </div>
       </div>
     </>
   );
